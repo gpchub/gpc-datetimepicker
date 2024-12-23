@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="vi">
+
+<head>
+	<meta http-equiv="content-type" content="text/html; charset=utf-8" />
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<link rel="stylesheet" type="text/css" href="./datetimepicker.css" />
+	<style type="text/css">
+	</style>
+</head>
+
+<body>
+	<h3>DateTimePicker</h3>
+	<input type="text" value="" id="gdatetimepicker" />
+<script src="./datetimepicker.js"></script>
+<script>
+	const gdatetimepicker = new GDatetimepicker('#gdatetimepicker', {
+		mask: false,
+		format: 'd/m/Y H:i',
+		step: 15,
+		onChangeDateTime: function (currentDateTime) {
+			let day = currentDateTime.getDay();
+			if (day == 6 || day == 0) {
+				this.setOptions({
+					minTime: '8:00',
+					maxTime: '21:00'
+				});
+			} else {
+				this.setOptions({
+					minTime: '16:00',
+					maxTime: '21:00',
+				});
+			}
+		},
+	});
+</script>
+</body>
+</html>
