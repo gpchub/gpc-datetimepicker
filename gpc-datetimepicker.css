@@ -1,0 +1,287 @@
+.gdtp-datetimepicker {
+    --gdtp-font-size: 14px;
+    --gdtp-day-width: 30px;
+    --gdtp-day-height: 30px;
+    --gdtp-month-picker-height: 30px;
+    user-select: none;
+    box-shadow: rgba(0, 0, 0, 0.05) 0px 6px 24px 0px, rgba(0, 0, 0, 0.08) 0px 0px 0px 1px;
+    background: #fff;
+    color: #333;
+    padding: 8px;
+    position: absolute;
+    z-index: 9999;
+    display: none;
+    font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+}
+
+.gdtp-datetimepicker * {
+    box-sizing: border-box;
+}
+
+.gdtp-datetimepicker ::-webkit-scrollbar-track
+{
+	-webkit-box-shadow: inset 0 0 5px rgba(0, 0, 0, 0.122);
+	background-color: #F5F5F5;
+}
+
+.gdtp-datetimepicker ::-webkit-scrollbar
+{
+	width: 5px;
+	background-color: #F5F5F5;
+}
+
+.gdtp-datetimepicker ::-webkit-scrollbar-thumb
+{
+	background-color: hsl(0, 0%, 64%);
+    border-radius: 6px;
+}
+
+.gdtp-datetimepicker:after {
+    content: '';
+    display: block;
+    clear: both;
+}
+
+/*---------- buttons ---------- */
+.gdtp-datetimepicker button {
+    border: none;
+}
+
+.gdtp-datetimepicker .gdtp-label i,
+.gdtp-datetimepicker .gdtp-prev,
+.gdtp-datetimepicker .gdtp-next,
+.gdtp-datetimepicker .gdtp-today-button {
+    background-image: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAGQAAAAeCAMAAADthUvBAAAATlBMVEUAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAADEoqZZAAAAGXRSTlMAj1rVCsgG+/Pt493Qem9pTEsU276yr04a8h2FRwAAALhJREFUSMft1ssKgzAQheGZxrtWq73+7/+ilW5cGKZEGLDSswlkkS/kMon8c5SoinsU3BUFd0Vho6JG98rYqqBRg5hhKENvIsQnHekylBFOJoLGBpSUXMBUAHRtkGjYCitFSURG+KKwKIuRhDxhUZyQAYD7A4Cz03LlXf4ZvIfQBbeNzymLualoC78jfKWcRIqayvEy1vASyYDMr6zcmnaakdCEzLNA7qLU7+3Rsp/f3/pI7CtH2703SV8YXip2F0oAAAAASUVORK5CYII=)
+}
+
+.gdtp-datetimepicker .gdtp-next,
+.gdtp-datetimepicker .gdtp-prev,
+.gdtp-datetimepicker .gdtp-today-button {
+    background-color: transparent;
+    background-repeat: no-repeat;
+    cursor: pointer;
+    display: block;
+    height: 100%;
+    opacity: .5;
+    padding: 0;
+    position: relative;
+    width: 20px;
+}
+
+.gdtp-datetimepicker .gdtp-label i {
+    display: inline-block;
+    opacity: .5;
+    width: 9px;
+    height: 20px;
+    vertical-align: middle;
+    margin-right: 2px;;
+    background-position: -92px -19px;
+}
+
+.gdtp-datetimepicker .gdtp-today-button:hover,
+.gdtp-datetimepicker .gdtp-next:hover,
+.gdtp-datetimepicker .gdtp-prev:hover {
+    opacity: 1;
+}
+
+/*---------- datepicker ---------- */
+
+.gdtp-datetimepicker .gdtp-datepicker {
+    float: left;
+}
+
+/*---------- monthpicker ---------- */
+
+.gdtp-datetimepicker .gdtp-monthpicker {
+    position: relative;
+    display: flex;
+    text-align: center;
+    align-items: center;
+    height: var(--gdtp-month-picker-height);
+}
+
+.gdtp-datetimepicker .gdtp-monthpicker .gdtp-prev {
+    background-position: -20px 0
+}
+
+.gdtp-datetimepicker .gdtp-monthpicker .gdtp-next {
+    background-position: 0 0
+}
+
+.gdtp-datetimepicker .gdtp-monthpicker .gdtp-today-button {
+    background-position: -70px 0;
+    margin-left: 5px
+}
+
+.gdtp-datetimepicker .gdtp-monthpicker .gdtp-label {
+    position: relative;
+    font-size: var(--gdtp-font-size);
+    font-weight: 500;
+    cursor: pointer
+}
+
+.gdtp-datetimepicker .gdtp-monthpicker .gdtp-label:hover > span {
+    text-decoration: underline
+}
+
+.gdtp-datetimepicker .gdtp-monthpicker .gdtp-label:hover i {
+    opacity: 1.0
+}
+
+.gdtp-datetimepicker .gdtp-month {
+    width: 100px;
+}
+
+.gdtp-datetimepicker .gdtp-year {
+    width: 60px;
+}
+
+.gdtp-datetimepicker .gdtp-select {
+    display: none;
+    border: 1px solid #ccc;
+    background: #fff;
+    position: absolute;
+    top: 20px;
+    max-height: 160px;
+    width: 100%;
+    overflow-y: scroll;
+}
+
+.gdtp-datetimepicker .gdtp-select .gdtp-option {
+    padding: 2px 5px;
+    text-decoration: none;
+    font-weight: normal;
+}
+
+.gdtp-datetimepicker .gdtp-select .gdtp-option:hover {
+    color: #fff;
+    background: #ff8000
+}
+
+.gdtp-datetimepicker .gdtp-select .gdtp-option.gdtp-current {
+    background: #3af;
+    color: #fff;
+}
+
+/*---------- calendar ---------- */
+
+.gdtp-datetimepicker .gdtp-calendar {
+    clear: both;
+    border-color: #ddd;
+    border-style: solid;
+    border-width: 1px 0 0 1px;
+}
+
+.gdtp-datetimepicker .gdtp-weekdays,
+.gdtp-datetimepicker .gdtp-days {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+}
+
+.gdtp-datetimepicker .gdtp-weekday,
+.gdtp-datetimepicker .gdtp-date {
+    display: flex;
+    align-items: center;
+    justify-content: end;
+    font-size: var(--gdtp-font-size);
+    height: var(--gdtp-day-height);
+    padding: 0 5px;
+    background: hsla(0, 0%, 96%, 1);
+    color: hsla(0, 0%, 40%, 1);
+    border-color: #ddd;
+    border-width: 0 1px 1px 0;
+    border-style: solid;
+    cursor: pointer;
+}
+
+.gdtp-datetimepicker .gdtp-weekday {
+    font-weight: 600;
+    background: hsla(0, 0%, 93%, 1);
+}
+
+.gdtp-datetimepicker .gdtp-other-month,
+.gdtp-datetimepicker .gdtp-disabled {
+    background: hsla(0, 0%, 96%, 0.5);
+    color: hsla(0, 0%, 40%, 0.5);
+    cursor: default;
+}
+
+.gdtp-datetimepicker .gdtp-today {
+    color: #3af;
+}
+
+.gdtp-datetimepicker .gdtp-date:hover {
+    background: #FFF6E3;
+}
+
+.gdtp-datetimepicker .gdtp-date.gdtp-current {
+    background-color: #3af;
+    color: #fff;
+}
+
+/*---------- timepicker ---------- */
+.gdtp-datetimepicker .gdtp-timepicker {
+    float: left;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    width: 58px;
+    margin-left: 8px;
+    margin-top: 8px;
+}
+
+.gdtp-datetimepicker .gdtp-timepicker .gdtp-prev,
+.gdtp-datetimepicker .gdtp-timepicker .gdtp-next {
+    background-position: -40px -15px;
+    height: 15px;
+    width: 30px;
+    display: block;
+    margin-top: 7px
+}
+
+.gdtp-datetimepicker .gdtp-timepicker .gdtp-prev {
+    background-position: -40px 0;
+    margin-bottom: 7px;
+    margin-top: 0
+}
+
+.gdtp-datetimepicker .gdtp-time-box {
+    overflow: hidden;
+    border: 1px solid #ddd;
+}
+
+.gdtp-datetimepicker .gdtp-time-variant {
+    overflow-y: scroll;
+    height: calc(var(--gdtp-day-height) * 6);
+    position: relative;
+}
+
+.gdtp-datetimepicker .gdtp-time {
+    padding: 0 4px;
+    background: #f5f5f5;
+    border-top: 1px solid #ddd;
+    color: #666;
+    font-size: var(--gdtp-font-size);
+    text-align: center;
+    border-collapse: collapse;
+    cursor: pointer;
+    border-bottom-width: 0;
+    height: var(--gdtp-day-height);
+    line-height: var(--gdtp-day-height);
+}
+
+.gdtp-datetimepicker .gdtp-time:first-child {
+    border-top: none;
+}
+
+.gdtp-datetimepicker .gdtp-disabled {
+    background: hsla(0, 0%, 96%, 0.5);
+    color: hsla(0, 0%, 40%, 0.5);
+    cursor: default;
+}
+
+.gdtp-datetimepicker .gdtp-time.gdtp-current {
+    background-color: #3af;
+    color: #fff;
+}
