@@ -219,6 +219,11 @@
     color: #fff;
 }
 
+.gdtp-datetimepicker .gdtp-date.gdtp-highlighted {
+    background-color: #DEAA79;
+    color: #fff;
+}
+
 /*---------- timepicker ---------- */
 .gdtp-datetimepicker .gdtp-timepicker {
     float: left;
@@ -229,6 +234,10 @@
     width: 58px;
     margin-left: 8px;
     margin-top: 8px;
+}
+
+.gdtp-datetimepicker .gdtp-timepicker:not(.active) {
+    display: none;
 }
 
 .gdtp-datetimepicker .gdtp-timepicker .gdtp-prev,

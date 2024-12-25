@@ -25,33 +25,45 @@ var GKeycode = {
 class GDatetimepicker
 {
     defaultOptions  = {
-        /** @var String Format datetime */
+        /** @var {String} Format datetime */
 		format: 'YYYY/MM/DD HH:mm',
 
-        /** @var Boolean Đóng khi chọn ngày */
+        /** @var {Boolean} Đóng khi chọn ngày */
 		closeOnDateSelect: false,
-        /** @var Boolean Đóng khi chọn giờ */
+        /** @var {Boolean} Đóng khi chọn giờ */
 		closeOnTimeSelect: true,
 
-        /** @var Date|null Ngày ban đầu, dùng format trong formatDate  */
+        /** @var {String|null} Ngày ban đầu, format Y/m/d hoặc Y/m/d H:i (nếu có timepicker)  */
 		initValue: null,
+        /** @var {String} Ngày nhỏ nhất trong lịch, format Y/m/d H:i */
+		minDate: '',
+        /** @var {String} Ngày lớn nhất trong lịch, format Y/m/d H:i */
+		maxDate: '',
+        /** @var {String} Giờ nhỏ nhất trong timepicker, format H:i */
+		minTime: '',
+        /** @var {String} Giờ nhỏ nhất trong timepicker, format H:i */
+		maxTime: '',
+        /** @var {Number} Năm nhỏ nhất trong lịch */
+		yearStart: 1970,
+        /** @var {Number} Năm lớn nhất trong lịch */
+		yearEnd: 2030,
 
-		minDate: false,
-		maxDate: false,
-		minTime: false,
-		maxTime: false,
-        /** @var Number Năm nhỏ nhất trong lịch */
-		yearStart: 1950,
-        /** @var Number Năm lớn nhất trong lịch */
-		yearEnd: 2050,
-        highlightedDates: [],
-		highlightedPeriods: [],
+        /** @var {Array} Mảng các ngày cho phép chọn, format Y/m/d */
 		allowDates: [],
+        /** @var {String} RegExp các ngày cho phép chọn */
 		allowDateRe: null,
+        /** @var {Array} Mảng các ngày không được phép chọn, format Y/m/d */
 		disabledDates: [],
+        /** @var {Array} Mảng các thứ trong tuần không được phép chọn, format Y/m/d */
 		disabledWeekDays: [],
+        /** @var {Array} Mảng các ngày highlight, format Y/m/d */
+        highlightedDates: [],
+        /** @var {Array} Mảng các khoảng ngày highlight, format Y/m/d,Y/m/d */
+		highlightedPeriods: [],
 
+        /** @var {Array} Mảng các giờ cho phép chọn, format H:i */
 		allowTimes: [],
+        /** @var {Array} Mảng các giờ không được phép chọn, format H:i */
         disabledTimes: [],
 
         /** @var Number Thứ bắt đầu trong tuần (0: CN, 1-6: T2-T7) */
@@ -69,10 +81,6 @@ class GDatetimepicker
 		step: 60,
         /** @var String Cách làm tròn số phút trong ô chọn giờ */
 		roundTime: 'round', // ceil, floor
-
-        hours12: false,// TODO đang lỗi
-
-		defaultSelect: true, // BUG không có tác dụng
 
         /** @var Boolean Hiện input mask */
 		mask: false,
@@ -92,8 +100,8 @@ class GDatetimepicker
         /** @var Boolean Datetimepicker position: fixed */
 		fixed: false,
 
+        beforeShowTime: null,
 		beforeShowDay: function () {},
-        beforeShowTime: function () {},
         onSelectDate: function () {},
 		onSelectTime: function () {},
 		onChangeMonth: function () {},
@@ -128,23 +136,19 @@ class GDatetimepicker
 
     globalLocale = 'vi';
 
-    /** @var String Format for minTime and maxTime */
     timeFormat = 'HH:mm';
-    /** @var String Format for minDate and maxDate */
     dateFormat = 'YYYY/MM/DD';
-    /** @var String Format date time */
     datetimeFormat = 'YYYY/MM/DD HH:mm';
-
+    /** @var {String} Định dạng cho datetimepicker value, là dạng date hay datetime tuỳ theo timepicker có hay không */
     valueFormat = '';
 
     options = {};
 
-    /** thời gian của view hiện tại */
+    /** @var {Date|null} thời gian của view lịch hiện tại */
     currentViewDateTime = null;
-    /** thời gian hiện tại của datetimepicker */
+    /** @var {Date|null} thời gian hiện tại của datetimepicker */
     currentValue = null;
 
-    dtChangeTimer = 0;
     ctrlDown = false;
     cmdDown = false;
 
@@ -155,18 +159,17 @@ class GDatetimepicker
         this.options = { ...this.defaultOptions, ...this.normalizeOptions(opts) };
 
         this.valueFormat = this.options.timepicker ? this.datetimeFormat : this.dateFormat;
+
         if (this.options.locale && this.i18n[this.options.locale]) {
             this.globalLocale = this.options.locale;
         }
 
         this.$datetimePicker = this.createElement('div', 'gdtp-datetimepicker');
-
         this.$datePicker = this.createElement('div', 'gdtp-datepicker active');
         this.$calendar = this.createElement('div', 'gdtp-calendar');
         this.$monthPicker = this.createElement('div', 'gdtp-monthpicker', '<button type="button" class="gdtp-prev"></button><button type="button" class="gdtp-today-button"></button><div class="gdtp-label gdtp-month"><span></span><i></i></div><div class="gdtp-label gdtp-year"><span></span><i></i></div><button type="button" class="gdtp-next"></button>');
         this.$monthSelect = this.createElement('div', 'gdtp-select gdtp-monthselect', '<div></div>');
         this.$yearSelect = this.createElement('div', 'gdtp-select gdtp-yearselect', '<div></div>');
-
         this.$timePicker = this.createElement('div', 'gdtp-timepicker active', '<button type="button" class="gdtp-prev"></button><div class="gdtp-time-box"><div class="gdtp-time-variant"></div></div><button type="button" class="gdtp-next"></button>');
         this.$timebox = this.$timePicker.querySelector('.gdtp-time-variant');
 
@@ -180,12 +183,6 @@ class GDatetimepicker
     }
 
     initCurrentValue() {
-        /**
-         * Thứ tự ưu tiên
-         * - init date & time
-         * - input value
-         * - null
-         */
         if (!this.options.initValue && !this.$input.value) {
             return;
         }
@@ -272,10 +269,7 @@ class GDatetimepicker
         });
 
         this.$datetimePicker.addEventListener('dt.change', (e) => {
-            clearTimeout(this.dtChangeTimer);
-            this.dtChangeTimer = setTimeout(() => {
-                this.buildHtml();
-            }, 10);
+            this.buildHtml();
             e.stopPropagation();
         });
 
@@ -504,14 +498,12 @@ class GDatetimepicker
 
     bindCalendarEvents() {
         /*---------- click chọn ngày ---------- */
-		let calendarclick = 0;
+
         this.$calendar.addEventListener('click', (e) => {
             const elem = e.target.closest('.gdtp-date');
             if (!elem || !elem.matches('.gdtp-date')) return;
 
             e.stopPropagation();
-
-            calendarclick += 1;
 
             const { currentViewDateTime, options } = this;
 
@@ -540,17 +532,10 @@ class GDatetimepicker
             this.triggerEvent(this.$datetimePicker, 'dt.change');
             this.triggerEvent(this.$datetimePicker, 'dt.changedatetime');
 
-            if (
-                (
-                    calendarclick > 1
-                    || (options.closeOnDateSelect === true  || (options.closeOnDateSelect === false && !options.timepicker))
-                )
-            ) {
+            // nếu không có timepicker thì luôn đóng khi chọn ngày
+            if (options.closeOnDateSelect === true  || !options.timepicker) {
                 this.triggerEvent(this.$datetimePicker, 'dt.close');
             }
-            setTimeout(function () {
-                calendarclick = 0;
-            }, 200);
         });
     }
 
@@ -708,7 +693,7 @@ class GDatetimepicker
 
             if (options.highlightedDates[this.formatDate(currentDate)] !== undefined) {
                 hDate = options.highlightedDates[this.formatDate(currentDate)];
-                classes.push(hDate.style === undefined ? 'gdtp-highlighted-default' : hDate.style);
+                classes.push(hDate.style === undefined ? 'gdtp-highlighted' : hDate.style);
                 description = hDate.desc === undefined ? '' : hDate.desc;
             }
 
@@ -729,10 +714,10 @@ class GDatetimepicker
             extraOpts = options.beforeShowTime.call(this, currentViewDateTime);
         }
 
-        let minTime = extraOpts.minTime || options.minTime;
-        let maxTime = extraOpts.maxTime || options.maxTime;
-        let allowTimes = extraOpts.allowTimes || options.allowTimes;
-        let disabledTimes = extraOpts.disabledTimes || options.disabledTimes;
+        let minTime = extraOpts?.minTime || options.minTime;
+        let maxTime = extraOpts?.maxTime || options.maxTime;
+        let allowTimes = extraOpts?.allowTimes || options.allowTimes;
+        let disabledTimes = extraOpts?.disabledTimes || options.disabledTimes;
 
         let minTimeMinutesOfDay = 0;
         if (minTime) {
@@ -824,8 +809,8 @@ class GDatetimepicker
         if (highlightedDates && Array.isArray(highlightedDates) && highlightedDates.length) {
             highlightedDates.forEach((value) => {
                 let splitData = value.split(',').map((x) => x.trim());
-                let newDate = new GHighlightedDate(this.dateHelper.parseDate(splitData[0], options.formatDate), splitData[1], splitData[2]);
-                let dateKey = this.dateHelper.formatDate(hDate.date, options.formatDate);
+                let newDate = new GHighlightedDate(this.parseDate(splitData[0]), splitData[1], splitData[2]);
+                let dateKey = this.formatDate(newDate.date);
 
                 if (result[dateKey] !== undefined) {
                     let desc = result[dateKey].desc;
@@ -855,15 +840,15 @@ class GDatetimepicker
                     style = value[3];
                 } else {
                     let splitData = value.split(',').map((x) => x.trim());
-                    dateStart = this.dateHelper.parseDate(splitData[0], options.formatDate);
-                    dateEnd = this.dateHelper.parseDate(splitData[1], options.formatDate);
+                    dateStart = this.parseDate(splitData[0]);
+                    dateEnd = this.parseDate(splitData[1]);
                     desc = splitData[2];
                     style = splitData[3];
                 }
 
                 while (dateStart <= dateEnd) {
                     newDate = new GHighlightedDate(dateStart, desc, style);
-                    dateKey = dateHelper.formatDate(dateStart, options.formatDate);
+                    dateKey = this.formatDate(dateStart);
 
                     if (result[dateKey] !== undefined) {
                         existedDesc = result[dateKey].desc;
@@ -960,7 +945,7 @@ class GDatetimepicker
 
         let datetimepickerCss = {
             position: position,
-            left: options.insideParent ? dateInputElem.offsetLeft : left,
+            left: options.insideParent ? dateInputElem.offsetLeft + 'px' : left + 'px',
             top: '',  //Initialize to prevent previous values interfering with new ones.
             bottom: ''  //Initialize to prevent previous values interfering with new ones.
         };
