@@ -130,6 +130,10 @@ class GDatetimepicker
     valueFormat = '';
 
     options = {};
+    allowedDateRanges = [];
+    disabledDateRanges = [];
+    allowedTimeRanges = [];
+    disabledTimeRanges = [];
 
     /** @var {Date|null} thời gian của view lịch hiện tại */
     currentViewDateTime = null;
@@ -153,6 +157,11 @@ class GDatetimepicker
         if (this.options.locale && this.i18n[this.options.locale]) {
             this.globalLocale = this.options.locale;
         }
+
+        this.allowedDateRanges = this.normalizeDateRanges(this.options.allowedDateRanges);
+        this.disabledDateRanges = this.normalizeDateRanges(this.options.disabledDateRanges);
+        this.allowedTimeRanges = this.normalizeTimeRanges(this.options.allowedTimeRanges);
+        this.disabledTimeRanges = this.normalizeTimeRanges(this.options.disabledTimeRanges);
 
         this.$datetimePicker = this.createElement('div', 'gdtp-datetimepicker');
         this.$datePicker = this.createElement('section', 'gdtp-datepicker active');
@@ -215,6 +224,32 @@ class GDatetimepicker
         return opts;
     }
 
+    normalizeDateRanges(dateRanges) {
+        if (! Array.isArray(dateRanges) || ! dateRanges.length) return [];
+
+        return dateRanges.map((r) => {
+            if (r.length !== 2) return;
+
+            return {
+                minDate: this.parseDate(r[0]),
+                maxDate: this.parseDate(r[1]),
+            };
+        }).filter((x) => x);
+    }
+
+    normalizeTimeRanges(timeRanges) {
+        if (! Array.isArray(timeRanges) || ! timeRanges.length) return [];
+
+        return timeRanges.map((r) => {
+            if (r.length !== 2) return;
+
+            return  {
+                min: this.parseTime(r[0]),
+                max: this.parseTime(r[1]),
+            }
+        }).filter((x) => x);
+    }
+
     init() {
         this.initCurrentValue();
         this.initCurrentViewDateTime();
@@ -232,8 +267,43 @@ class GDatetimepicker
     }
 
     initCurrentViewDateTime() {
-        this.currentViewDateTime = this.currentValue ? new Date(this.currentValue) : new Date();
-        this.roundTimeByStep(this.currentViewDateTime, this.options.step);
+        let viewDate = this.currentValue ? new Date(this.currentValue) : new Date();
+
+        if (! this.options.timepicker) {
+            this.currentViewDateTime = new Date(viewDate.getFullYear(), viewDate.getMonth(), viewDate.getDate());
+            return;
+        };
+
+        this.roundTimeByStep(viewDate, this.options.step);
+        let minTime = this.parseTime(this.options.minTime);
+        let maxTime = this.parseTime(this.options.maxTime);
+        let minMinutes = minTime ? this.timeToMinutes(minTime) : 0;
+        let maxMinutes = maxTime ? this.timeToMinutes(maxTime) : 24 * 60;
+        let viewMinutes = this.timeToMinutes(viewDate);
+
+        if (viewMinutes < minMinutes) {
+            viewDate.setHours(minTime.getHours(), minTime.getMinutes());
+        }
+
+        if (viewMinutes > maxMinutes) {
+            viewDate.setHours(maxTime.getHours(), maxTime.getMinutes());
+        }
+
+        let currentDate = viewDate.getDate();
+        while (
+            ! this.isTimeAvailable(viewDate)
+            && this.timeToMinutes(viewDate) < maxMinutes
+            && viewDate.getDate() === currentDate
+        ) {
+            viewDate.setMinutes(viewDate.getMinutes() + this.options.step);
+        }
+
+        if (! this.isTimeAvailable(viewDate)) {
+            viewDate.setHours(0, 0);
+            viewDate.setDate(currentDate);
+        }
+
+        this.currentViewDateTime = new Date(viewDate);
     }
 
     getValue() {
@@ -630,18 +700,10 @@ class GDatetimepicker
     }
 
     isDateAllowed(date) {
-        const { allowedDates, allowedDateRanges } = this.options;
+        const { allowedDates } = this.options;
+        const { allowedDateRanges } = this;
 
-        const ranges = allowedDateRanges.map((r) => {
-            if (r.length !== 2) return;
-
-            return {
-                minDate: this.parseDate(r[0]),
-                maxDate: this.parseDate(r[1]),
-            };
-        }).filter((x) => x);
-
-        if (allowedDates.length === 0 && ranges.length === 0) {
+        if (allowedDates.length === 0 && allowedDateRanges.length === 0) {
             return true;
         }
 
@@ -649,20 +711,12 @@ class GDatetimepicker
             return true;
         }
 
-        return ranges.some((x) => this.isDateBetween(date, x.minDate, x.maxDate));
+        return allowedDateRanges.some((x) => this.isDateBetween(date, x.minDate, x.maxDate));
     }
 
     isDateDisabled(date) {
-        const { disabledDates, disabledWeekDays, disabledDateRanges } = this.options;
-
-        const ranges = disabledDateRanges.map((r) => {
-            if (r.length !== 2) return;
-
-            return {
-                minDate: this.parseDate(r[0]),
-                maxDate: this.parseDate(r[1]),
-            };
-        }).filter((x) => x);
+        const { disabledDates, disabledWeekDays } = this.options;
+        const { disabledDateRanges } = this;
 
         if (!disabledDates.length && !disabledWeekDays.length && !disabledDateRanges.length) {
             return false;
@@ -676,7 +730,7 @@ class GDatetimepicker
             return true;
         }
 
-        return ranges.some((x) => this.isDateBetween(date, x.minDate, x.maxDate));
+        return disabledDateRanges.some((x) => this.isDateBetween(date, x.minDate, x.maxDate));
     }
 
     buildTimePicker() {
@@ -748,16 +802,8 @@ class GDatetimepicker
     }
 
     isTimeAllowed(time) {
-        const { allowedTimes, allowedTimeRanges } = this.options;
-
-        const ranges = allowedTimeRanges.map((r) => {
-            if (r.length !== 2) return;
-
-            let min = this.parseTime(r[0]);
-            let max = this.parseTime(r[1]);
-
-            return { min, max };
-        });
+        const { allowedTimes } = this.options;
+        const { allowedTimeRanges } = this;
 
         if (!allowedTimes.length && !allowedTimeRanges.length) {
             return true;
@@ -767,20 +813,12 @@ class GDatetimepicker
             return true;
         }
 
-        return ranges.some((x) => this.isTimeBetween(time, x.min, x.max));
+        return allowedTimeRanges.some((x) => this.isTimeBetween(time, x.min, x.max));
     }
 
     isTimeDisabled(time) {
-        const { disabledTimes, disabledTimeRanges } = this.options;
-
-        const ranges = disabledTimeRanges.map((r) => {
-            if (r.length !== 2) return;
-
-            let min = this.parseTime(r[0]);
-            let max = this.parseTime(r[1]);
-
-            return { min, max };
-        });
+        const { disabledTimes } = this.options;
+        const { disabledTimeRanges } = this;
 
         if (!disabledTimes.length && !disabledTimeRanges.length) {
             return false;
@@ -790,7 +828,20 @@ class GDatetimepicker
             return true;
         }
 
-        return ranges.some((x) => this.isTimeBetween(time, x.min, x.max));
+        return disabledTimeRanges.some((x) => this.isTimeBetween(time, x.min, x.max));
+    }
+
+    isTimeAvailable(time) {
+        let minTime = this.parseTime(this.options.minTime);
+        let maxTime = this.parseTime(this.options.maxTime);
+        let minMinutes = this.timeToMinutes(minTime);
+        let maxMinutes = this.timeToMinutes(maxTime);
+        let timeMinutes = this.timeToMinutes(time);
+
+        return (minMinutes && timeMinutes >= minMinutes)
+            && (maxMinutes && timeMinutes <= maxMinutes)
+            && this.isTimeAllowed(time)
+            && !this.isTimeDisabled(time);
     }
 
     goToMonth(month, year) {
