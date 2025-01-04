@@ -137,7 +137,7 @@ class GDatetimepicker
     isDatetimepickerOpen = false;
 
     constructor(el, opts) {
-        this.$input = document.querySelector(el);
+        this.$input = el instanceof HTMLElement ? el : document.querySelector(el);
         if (!this.$input) return;
 
         this.options = { ...this.defaultOptions, ...this.normalizeOptions(opts) };
