@@ -71,12 +71,6 @@ class GDatetimepicker
 
         /** @var String Selector chứa datetime picker */
         parentSelector: 'body',
-        /** @var Boolean Datetimepicker đặt trong parent của input */
-        insideParent: false,
-        /** @var String Classname nút next ở phần chọn tháng và chọn giờ */
-		next: 'gdtp-next',
-        /** @var String Classname nút prev ở phần chọn tháng và chọn giờ */
-		prev : 'gdtp-prev',
         /** @var {Boolean} Đóng khi chọn ngày */
 		closeOnDateSelect: false,
         /** @var {Boolean} Đóng khi nhấn nút xoá */
