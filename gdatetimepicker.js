@@ -39,8 +39,12 @@ class GDatetimepicker
 
         /** @var {Array} Mảng các ngày cho phép chọn, format Y/m/d */
 		allowedDates: [],
+        /** @var {Array} Mảng các khoảng ngày cho phép chọn, format Y/m/d */
+        allowedDateRanges: [],
         /** @var {Array} Mảng các ngày không được phép chọn, format Y/m/d */
 		disabledDates: [],
+        /** @var {Array} Mảng các khoảng ngày không được phép chọn, format Y/m/d */
+        disabledDateRanges: [],
         /** @var {Array} Mảng các thứ trong tuần không được phép chọn, format Y/m/d */
 		disabledWeekDays: [],
         /** @var {String} Ngày nhỏ nhất trong lịch, format Y/m/d H:i */
@@ -54,8 +58,12 @@ class GDatetimepicker
 		step: 15,
         /** @var {Array} Mảng các giờ cho phép chọn, format H:i */
 		allowedTimes: [],
+        /** @var {Array} Mảng các khoảng giờ cho phép chọn, format H:i */
+        allowedTimeRanges: [],
         /** @var {Array} Mảng các giờ không được phép chọn, format H:i */
         disabledTimes: [],
+        /** @var {Array} Mảng các khoảng giờ không được phép chọn, format H:i */
+        disabledTimeRanges: [],
         /** @var {String} Giờ nhỏ nhất trong timepicker, format H:i */
 		minTime: '08:00',
         /** @var {String} Giờ nhỏ nhất trong timepicker, format H:i */
@@ -176,17 +184,21 @@ class GDatetimepicker
         if (!this.isPlainObject(opts)) return {};
 
         opts.allowedDates = this.normalizeArray(opts.allowedDates);
+        opts.allowedDateRanges = this.normalizeArray(opts.allowedDateRanges);
         opts.disabledDates = this.normalizeArray(opts.disabledDates);
+        opts.disabledDateRanges = this.normalizeArray(opts.disabledDateRanges);
         opts.disabledWeekDays = this.normalizeArray(opts.disabledWeekDays);
-        opts.minDate = this.isValidDate(opts.minDate) ? opts.minDate : '';
-        opts.maxDate = this.isValidDate(opts.maxDate) ? opts.maxDate : '';
+        opts.minDate = opts.minDate && this.isValidDate(opts.minDate) ? opts.minDate : '';
+        opts.maxDate = opts.maxDate && this.isValidDate(opts.maxDate) ? opts.maxDate : '';
 
         opts.allowedTimes = this.normalizeArray(opts.allowedTimes);
+        opts.allowedTimeRanges = this.normalizeArray(opts.allowedTimeRanges);
         opts.disabledTimes = this.normalizeArray(opts.disabledTimes);
-        opts.minTime = this.isValidTime(opts.minTime) ? opts.minTime : this.defaultOptions.minTime;
-        opts.maxTime = this.isValidTime(opts.maxTime) ? opts.maxTime : this.defaultOptions.maxTime;
+        opts.disabledTimeRanges = this.normalizeArray(opts.disabledTimeRanges);
+        opts.minTime = opts.minTime && this.isValidTime(opts.minTime) ? opts.minTime : this.defaultOptions.minTime;
+        opts.maxTime = opts.maxTime && this.isValidTime(opts.maxTime) ? opts.maxTime : this.defaultOptions.maxTime;
 
-        opts.initValue = this.isValidDate(opts.initValue) ? opts.initValue : '';
+        opts.initValue = opts.initValue && this.isValidDate(opts.initValue) ? opts.initValue : '';
 
         if (isNaN(opts.dayOfWeekStart)) {
             opts.dayOfWeekStart = 0;
@@ -583,21 +595,53 @@ class GDatetimepicker
     }
 
     isDateAllowed(date) {
-        const { allowedDates } = this.options;
-        if (allowedDates.length === 0) {
+        const { allowedDates, allowedDateRanges } = this.options;
+
+        const ranges = allowedDateRanges.map((r) => {
+            if (r.length !== 2) return;
+
+            return {
+                minDate: this.parseDate(r[0]),
+                maxDate: this.parseDate(r[1]),
+            };
+        }).filter((x) => x);
+
+        if (allowedDates.length === 0 && ranges.length === 0) {
             return true;
         }
 
-        return allowedDates.indexOf(this.formatDateOnly(date)) !== -1;
+        if (allowedDates.length && allowedDates.includes(this.formatDateOnly(date))) {
+            return true;
+        }
+
+        return ranges.some((x) => this.isDateBetween(date, x.minDate, x.maxDate));
     }
 
     isDateDisabled(date) {
-        const { disabledDates, disabledWeekDays } = this.options;
-        if (disabledDates.length === 0 && disabledWeekDays.length === 0) {
+        const { disabledDates, disabledWeekDays, disabledDateRanges } = this.options;
+
+        const ranges = disabledDateRanges.map((r) => {
+            if (r.length !== 2) return;
+
+            return {
+                minDate: this.parseDate(r[0]),
+                maxDate: this.parseDate(r[1]),
+            };
+        }).filter((x) => x);
+
+        if (!disabledDates.length && !disabledWeekDays.length && !disabledDateRanges.length) {
             return false;
         }
 
-        return disabledDates.includes(this.formatDateOnly(date)) || disabledWeekDays.includes(date.getDay());
+        if (disabledDates.length && disabledDates.includes(this.formatDateOnly(date))) {
+            return true;
+        }
+
+        if (disabledWeekDays.length && disabledWeekDays.includes(date.getDay())) {
+            return true;
+        }
+
+        return ranges.some((x) => this.isDateBetween(date, x.minDate, x.maxDate));
     }
 
     buildTimePicker() {
@@ -647,12 +691,13 @@ class GDatetimepicker
                 let h = this.padZero(i, 2);
                 let m = this.padZero(j, 2);
                 let strTime = `${h}:${m}`;
+                let time = this.parseTime(strTime);
 
-                if (!this.isTimeAllowed(strTime)) {
+                if (!this.isTimeAllowed(time)) {
                     classes.push('is-disabled');
                 }
 
-                if (this.isTimeDisabled(strTime)) {
+                if (this.isTimeDisabled(time)) {
                     classes.push('is-disabled');
                 }
 
@@ -668,21 +713,49 @@ class GDatetimepicker
     }
 
     isTimeAllowed(time) {
-        const { allowedTimes } = this.options;
-        if (allowedTimes.length === 0) {
+        const { allowedTimes, allowedTimeRanges } = this.options;
+
+        const ranges = allowedTimeRanges.map((r) => {
+            if (r.length !== 2) return;
+
+            let min = this.parseTime(r[0]);
+            let max = this.parseTime(r[1]);
+
+            return { min, max };
+        });
+
+        if (!allowedTimes.length && !allowedTimeRanges.length) {
             return true;
         }
 
-        return allowedTimes.includes(time);
+        if (allowedTimes.length && allowedTimes.includes(this.formatTimeOnly(time))) {
+            return true;
+        }
+
+        return ranges.some((x) => this.isTimeBetween(time, x.min, x.max));
     }
 
     isTimeDisabled(time) {
-        const { disabledTimes } = this.options;
-        if (disabledTimes.length === 0) {
+        const { disabledTimes, disabledTimeRanges } = this.options;
+
+        const ranges = disabledTimeRanges.map((r) => {
+            if (r.length !== 2) return;
+
+            let min = this.parseTime(r[0]);
+            let max = this.parseTime(r[1]);
+
+            return { min, max };
+        });
+
+        if (!disabledTimes.length && !disabledTimeRanges.length) {
             return false;
         }
 
-        return disabledTimes.includes(time);
+        if (disabledTimes.length && disabledTimes.includes(this.formatTimeOnly(time))) {
+            return true;
+        }
+
+        return ranges.some((x) => this.isTimeBetween(time, x.min, x.max));
     }
 
     goToMonth(month, year) {
@@ -773,6 +846,22 @@ class GDatetimepicker
         return d1.getFullYear() === d2.getFullYear()
             && d1.getMonth() === d2.getMonth()
             && d1.getDate() === d2.getDate();
+    }
+
+    isDateBetween(date, minDate, maxDate) {
+        const d = this.copyDate(date, false);
+        const min = minDate ? this.copyDate(minDate, false) : null;
+        const max = maxDate ? this.copyDate(maxDate, false) : null;
+
+        return (!min || d >= min) && (!max || d <= max);
+    }
+
+    isTimeBetween(time, minTime, maxTime) {
+        const timeMinutes = this.timeToMinutes(time);
+        const minMinutes = this.timeToMinutes(minTime);
+        const maxMinutes = this.timeToMinutes(maxTime);
+
+        return timeMinutes >= minMinutes && timeMinutes <= maxMinutes;
     }
 
     isWeekend(date) {
@@ -985,6 +1074,10 @@ class GDatetimepicker
     strHasTime(dateTimeString) {
         const timeRegex = /\b([01]\d|2[0-3]):([0-5]\d)(:([0-5]\d))?\b/;
         return timeRegex.test(dateTimeString);
+    }
+
+    timeToMinutes(time) {
+        return time.getHours() * 60 + time.getMinutes();
     }
 
     /*=============================================

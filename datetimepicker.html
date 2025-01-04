@@ -60,8 +60,20 @@
 		<input type="text" id="dtpAllowedDates" />
 		<hr>
 
+		<h3>allowedDateRanges</h3>
+		<p>Mảng các khoảng ngày có thể chọn.</p>
+		<p>Khoảng ngày là mảng gồm 2 thành phần: <code>[từ ngày, đến ngày]</code></p>
+		<input type="text" id="dtpAllowedDateRanges" />
+		<hr>
+
 		<h3>disabledDates</h3>
 		<input type="text" id="dtpDisabledDates" />
+		<hr>
+
+		<h3>disabledDateRanges</h3>
+		<p>Mảng các khoảng ngày không thể chọn.</p>
+		<p>Khoảng ngày là mảng gồm 2 thành phần: <code>[từ ngày, đến ngày]</code></p>
+		<input type="text" id="dtpDisabledDateRanges" />
 		<hr>
 
 		<h3>disabledWeekDays</h3>
@@ -80,8 +92,20 @@
 		<input type="text" id="dtpAllowedTimes" />
 		<hr>
 
+		<h3>allowedTimeRanges</h3>
+		<p>Mảng các khoảng giờ có thể chọn.</p>
+		<p>Khoảng giờ là mảng gồm 2 thành phần: <code>[từ giờ, đến giờ]</code></p>
+		<input type="text" id="dtpAllowedTimeRanges" />
+		<hr>
+
 		<h3>disabledTimes</h3>
 		<input type="text" id="dtpDisabledTimes" />
+		<hr>
+
+		<h3>disabledTimeRanges</h3>
+		<p>Mảng các khoảng giờ không thể chọn.</p>
+		<p>Khoảng giờ là mảng gồm 2 thành phần: <code>[từ giờ, đến giờ]</code></p>
+		<input type="text" id="dtpDisabledTimeRanges" />
 		<hr>
 
 		<h3>Khoảng cách thời gian trong timepicker</h3>
@@ -183,6 +207,14 @@
 			]
 		});
 
+		createDTP('dtpAllowedDateRanges', {
+			timepicker: true,
+			allowedDateRanges: [
+				[`${year}/${month}/05`, `${year}/${month}/10`],
+				[`${year}/${month}/15`, `${year}/${month}/20`],
+			]
+		});
+
 		createDTP('dtpDisabledDates', {
 			timepicker: true,
 			disabledDates: [
@@ -190,6 +222,14 @@
 				`${year}/${month}/10`,
 				`${year}/${month}/15`,
 				`${year}/${month}/20`
+			]
+		});
+
+		createDTP('dtpDisabledDateRanges', {
+			timepicker: true,
+			disabledDateRanges: [
+				[`${year}/${month}/05`, `${year}/${month}/10`],
+				[`${year}/${month}/15`, `${year}/${month}/20`],
 			]
 		});
 
@@ -213,9 +253,25 @@
 			allowedTimes: ['09:00', '10:00', '11:00', '12:00'],
 		});
 
+		createDTP('dtpAllowedTimeRanges', {
+			timepicker: true,
+			allowedTimeRanges: [
+				['09:00', '12:00'],
+				['13:30', '17:00'],
+			],
+		});
+
 		createDTP('dtpDisabledTimes', {
 			timepicker: true,
 			disabledTimes: ['09:00', '10:00', '11:00', '12:00'],
+		});
+
+		createDTP('dtpDisabledTimeRanges', {
+			timepicker: true,
+			disabledTimeRanges: [
+				['09:00', '12:00'],
+				['13:30', '17:00'],
+			],
 		});
 
 		createDTP('dtpStep', {

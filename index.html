@@ -65,8 +65,20 @@
 		<input type="text" id="dtpAllowedDates" />
 		<hr>
 
+		<h3>allowedDateRanges</h3>
+		<p>Mảng các khoảng ngày có thể chọn.</p>
+		<p>Khoảng ngày là mảng gồm 2 thành phần: <code>[từ ngày, đến ngày]</code></p>
+		<input type="text" id="dtpAllowedDateRanges" />
+		<hr>
+
 		<h3>disabledDates</h3>
 		<input type="text" id="dtpDisabledDates" />
+		<hr>
+
+		<h3>disabledDateRanges</h3>
+		<p>Mảng các khoảng ngày không thể chọn.</p>
+		<p>Khoảng ngày là mảng gồm 2 thành phần: <code>[từ ngày, đến ngày]</code></p>
+		<input type="text" id="dtpDisabledDateRanges" />
 		<hr>
 
 		<h3>disabledWeekDays</h3>
@@ -134,12 +146,26 @@
 			]
 		});
 
+		createDTP('dtpAllowedDateRanges', {
+			allowedDateRanges: [
+				[`${year}/${month}/05`, `${year}/${month}/10`],
+				[`${year}/${month}/15`, `${year}/${month}/20`],
+			]
+		});
+
 		createDTP('dtpDisabledDates', {
 			disabledDates: [
 				`${year}/${month}/05`,
 				`${year}/${month}/10`,
 				`${year}/${month}/15`,
 				`${year}/${month}/20`
+			]
+		});
+
+		createDTP('dtpDisabledDateRanges', {
+			disabledDateRanges: [
+				[`${year}/${month}/05`, `${year}/${month}/10`],
+				[`${year}/${month}/15`, `${year}/${month}/20`],
 			]
 		});
 
