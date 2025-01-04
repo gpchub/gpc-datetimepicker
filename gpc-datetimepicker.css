@@ -220,7 +220,7 @@
     opacity: .3;
 }
 
-.gdtp-calendar__date.is-weekend:not(.is-current) {
+.gdtp-calendar__date.is-weekend:not(.is-current, .is-today) {
     color: var(--gdtp-date-weekend-color);
 }
 
