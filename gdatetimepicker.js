@@ -79,6 +79,8 @@ class GDatetimepicker
 		prev : 'gdtp-prev',
         /** @var {Boolean} Đóng khi chọn ngày */
 		closeOnDateSelect: false,
+        /** @var {Boolean} Đóng khi nhấn nút xoá */
+        closeOnClear: false,
 
         /** @var {function} Callback function trước khi render timer */
         beforeShowTime: null,
@@ -170,6 +172,10 @@ class GDatetimepicker
         this.$monthSelect = this.$monthPicker.querySelector('.gdtp-monthpicker__select.is-month');
         this.$yearSelect = this.$monthPicker.querySelector('.gdtp-monthpicker__select.is-year');
         this.$calendar = this.createElement('div', 'gdtp-calendar');
+        this.$datepickerFooter = this.createElement('footer', 'gdtp-datepicker__footer', `
+            <button type="button" class="gdtp-button gdtp-button__close">${ this.getText('close') }</button>
+            <button type="button" class="gdtp-button gdtp-button__clear">${ this.getText('clear') }</button>
+        `);
         this.$timePicker = this.createElement('div', 'gdtp-timepicker', `
             <button type="button" class="gdtp-timepicker__prev gdtp-button-icon"></button>
             <div class="gdtp-timepicker__times"></div>
@@ -245,6 +251,7 @@ class GDatetimepicker
 
         this.$datePicker.append(this.$monthPicker);
         this.$datePicker.append(this.$calendar);
+        this.$datePicker.append(this.$datepickerFooter);
 
         this.$datetimePicker.append(this.$datePicker);
         if (options.timepicker) {
@@ -257,6 +264,7 @@ class GDatetimepicker
         this.bindDatepickerEvents();
         this.bindMonthEvents();
         this.bindCalendarEvents();
+        this.bindFooterEvents();
 
         if (options.timepicker) {
             this.bindTimeEvents();
@@ -283,6 +291,19 @@ class GDatetimepicker
         this.closeMonthYearPicker();
         this.hideEl(this.$datetimePicker);
         this.isDatetimepickerOpen = false;
+    }
+
+    clear() {
+        this.currentValue = null;
+        this.$input.value = '';
+
+        this.triggerEvent(this.$datetimePicker, 'dt.change');
+        this.triggerEvent(this.$datetimePicker, 'dt.changeView');
+        this.triggerEvent(this.$input, 'change');
+
+        if (this.options.closeOnClear) {
+            this.close();
+        }
     }
 
     closeMonthYearPicker() {
@@ -407,6 +428,20 @@ class GDatetimepicker
             } else if (elem.classList.contains('gdtp-prev')) {
                 this.goToPrevMonth();
             }
+        });
+    }
+
+    bindFooterEvents() {
+        this.$datepickerFooter.querySelector('.gdtp-button__close').addEventListener('click', (e) => {
+            e.stopPropagation();
+            e.preventDefault();
+            this.close();
+        });
+
+        this.$datepickerFooter.querySelector('.gdtp-button__clear').addEventListener('click', (e) => {
+            e.stopPropagation();
+            e.preventDefault();
+            this.clear();
         });
     }
 

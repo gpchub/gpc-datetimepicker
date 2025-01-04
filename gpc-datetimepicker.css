@@ -293,17 +293,21 @@
 }
 
 /*---------- Footer ---------- */
-.gdtp-calendar-footer {
+.gdtp-datepicker__footer {
     display: flex;
     padding: 8px;
     gap: 16px;
 }
 
-.gdtp-calendar-footer .gdtp-button {
+.gdtp-datepicker__footer .gdtp-button {
     color: #4b5563;
+    border: none;
+    padding: 0;
+    background: #fff;
+    font-size: 14px;
 }
 
-.gdtp-calendar-footer .gdtp-button:hover {
+.gdtp-datepicker__footer .gdtp-button:hover {
     color: #2563eb;
     text-decoration: underline;
 }
