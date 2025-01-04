@@ -740,6 +740,14 @@ class GDatetimepicker
             options.maxTime = extraOpts.maxTime || options.maxTime;
             options.allowedTimes = extraOpts.allowedTimes || options.allowedTimes;
             options.disabledTimes = extraOpts.disabledTimes || options.disabledTimes;
+
+            if (extraOpts.allowedTimeRanges) {
+                this.allowedTimeRanges = this.normalizeTimeRanges(extraOpts.allowedTimeRanges);
+            }
+
+            if (extraOpts.disabledTimeRanges) {
+                this.disabledTimeRanges = this.normalizeTimeRanges(extraOpts.disabledTimeRanges);
+            }
         }
 
         let minTimeMinutesOfDay = 0;
