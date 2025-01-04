@@ -4,7 +4,7 @@
 <head>
 	<meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>GPC Datepicker demo</title>
+    <title>GPC Datetimepicker demo</title>
 
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
 	<link rel="stylesheet" type="text/css" href="./gpc-datetimepicker.css" />
@@ -14,29 +14,24 @@
 
 <body>
 	<div class="container pt-4">
-		<div class="mb-3 d-flex gap-3">
+        <div class="mb-3 d-flex gap-3">
 			<a href="index.html">Datepicker</a>
 			<a href="datetimepicker.html">Datetimepicker</a>
 		</div>
 
-		<h3>Datepicker</h3>
+		<h3>Datetimepicker đơn giản</h3>
 		<input type="text" id="dtp1" />
-		<hr>
-
-		<h3>Datepicker English</h3>
-		<input type="text" id="dtpEnglish" />
 		<hr>
 
 		<h3>Datepicker custom format</h3>
 		<input type="text" id="dtpFormat" />
 		<hr>
 
-		<h3>Datepicker có input value</h3>
-		<p>Value trong input phải cùng format với options <code>format</code> trong javascript</p>
-		<input type="text" value="20/12/2024" id="dtpInput" />
+		<h3>Datetimepicker có input value</h3>
+		<input type="text" value="20/12/2024 15:00" id="dtpInput" />
 		<hr>
 
-		<h3>Datepicker có init value</h3>
+		<h3>Datetimepicker có init value</h3>
 		<input type="text" id="dtpInit" />
 		<hr>
 
@@ -73,6 +68,52 @@
 		<input type="text" id="dtpDisabledWeekDays" />
 		<hr>
 
+		<h3>minTime</h3>
+		<input type="text" id="dtpMintime" />
+		<hr>
+
+		<h3>maxTime</h3>
+		<input type="text" id="dtpMaxtime" />
+		<hr>
+
+		<h3>allowedTimes</h3>
+		<input type="text" id="dtpAllowedTimes" />
+		<hr>
+
+		<h3>disabledTimes</h3>
+		<input type="text" id="dtpDisabledTimes" />
+		<hr>
+
+		<h3>Khoảng cách thời gian trong timepicker</h3>
+		<p>Cách nhau 15 phút</p>
+		<input type="text" id="dtpStep" />
+		<hr>
+
+		<h3>Thay đổi khoảng lựa chọn thời gian theo ngày</h3>
+		<p>Thứ 2-6: 16:00 - 21:00</p>
+		<p>Thứ 7, CN: 08:00 - 21:00</p>
+		<input type="text" id="dtpBeforeShowTime" />
+<pre><code class="language-javascript" id="code_dtpBeforeShowTime">
+	const dtpBeforeShowTime = new GDatetimepicker('#dtpBeforeShowTime', {
+		timepicker: true,
+		beforeShowTime: function (currentDateTime) {
+			let day = currentDateTime.getDay();
+			if (day == 6 || day == 0) {
+				return {
+					minTime: '8:00',
+					maxTime: '21:00',
+					disabledTimes: ['12:00', '12:30', '13:00', '13:30']
+				};
+			} else {
+				return {
+					minTime: '16:00',
+					maxTime: '21:00',
+				};
+			}
+		},
+	});
+</code></pre>
+
 	</div>
 
 	<script src="./gdatetimepicker.js"></script>
@@ -89,43 +130,51 @@
 		var year = today.getFullYear();
 		var month = padZero(today.getMonth() + 1);
 
-		createDTP('dtp1');
-
-		createDTP('dtpEnglish', {
-			locale: 'en',
+		createDTP('dtp1', {
+			timepicker: true,
 		});
 
 		createDTP('dtpFormat', {
-			format: 'MM/DD/YYYY',
+			timepicker: true,
+			format: 'MM/DD/YYYY HH:mm',
 		});
 
-		createDTP('dtpInput');
+		createDTP('dtpInput', {
+			timepicker: true,
+		});
 
 		createDTP('dtpInit', {
-			initValue: `${year}/${month}/20`,
+			timepicker: true,
+			initValue: `${year}/${month}/20 15:00`,
 		});
 
 		createDTP('dtpDayOfWeekStart', {
+			timepicker: true,
 			dayOfWeekStart: 1,
 		});
 
 		createDTP('dtpYearStart', {
+			timepicker: true,
 			yearStart: 1990,
 		});
 
 		createDTP('dtpYearEnd', {
+			timepicker: true,
 			yearEnd: 2028,
 		});
 
 		createDTP('dtpMindate', {
+			timepicker: true,
 			minDate: `${year}/${month}/02`,
 		});
 
 		createDTP('dtpMaxdate', {
+			timepicker: true,
 			maxDate: `${year}/${month}/22`,
 		});
 
 		createDTP('dtpAllowedDates', {
+			timepicker: true,
 			allowedDates: [
 				`${year}/${month}/05`,
 				`${year}/${month}/10`,
@@ -135,6 +184,7 @@
 		});
 
 		createDTP('dtpDisabledDates', {
+			timepicker: true,
 			disabledDates: [
 				`${year}/${month}/05`,
 				`${year}/${month}/10`,
@@ -144,9 +194,53 @@
 		});
 
 		createDTP('dtpDisabledWeekDays', {
+			timepicker: true,
 			disabledWeekDays: [1, 3, 5],
 		});
 
+		createDTP('dtpMintime', {
+			timepicker: true,
+			minTime: `09:00`,
+		});
+
+		createDTP('dtpMaxtime', {
+			timepicker: true,
+			maxTime: `17:00`,
+		});
+
+		createDTP('dtpAllowedTimes', {
+			timepicker: true,
+			allowedTimes: ['09:00', '10:00', '11:00', '12:00'],
+		});
+
+		createDTP('dtpDisabledTimes', {
+			timepicker: true,
+			disabledTimes: ['09:00', '10:00', '11:00', '12:00'],
+		});
+
+		createDTP('dtpStep', {
+			timepicker: true,
+			step: 15,
+		});
+
+		const dtpBeforeShowTime = new GDatetimepicker('#dtpBeforeShowTime', {
+			timepicker: true,
+			beforeShowTime: function (currentDateTime) {
+				let day = currentDateTime.getDay();
+				if (day == 6 || day == 0) {
+					return {
+						minTime: '8:00',
+						maxTime: '21:00',
+						disabledTimes: ['12:00', '12:30', '13:00', '13:30']
+					};
+				} else {
+					return {
+						minTime: '16:00',
+						maxTime: '21:00',
+					};
+				}
+			},
+		});
 	</script>
 </body>
 

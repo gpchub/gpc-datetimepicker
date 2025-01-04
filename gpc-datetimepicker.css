@@ -3,7 +3,31 @@
     --gdtp-day-width: 30px;
     --gdtp-day-height: 30px;
     --gdtp-month-picker-height: 30px;
+
+    --gdtp-month-picker-current-bg: #60a5fa;
+    --gdtp-month-picker-current-color: #fff;
+    --gdtp-month-picker-hover-bg: #f3f4f6;
+
+    --gdtp-weekday-bg: #94a3b8;
+    --gdtp-weekday-color: #f8fafc;
+
+    --gdtp-date-bg: #f8fafc;
+    --gdtp-date-color: #374151;
+    --gdtp-date-current-bg: #60a5fa;
+    --gdtp-date-current-color: #fff;
+    --gdtp-date-hover-bg: #f3f4f6;
+    --gdtp-date-disabled-color: #d1d5db;
+    --gdtp-today-color: #2563eb;
+    --gdtp-date-weekend-color: #ea580c;
+
+    --gdtp-time-bg: #f8fafc;
+    --gdtp-time-current-bg: #60a5fa;
+    --gdtp-time-current-color: #fff;
+    --gdtp-time-hover-bg: #f3f4f6;
+    --gdtp-time-disabled-color: #d1d5db;
+
     user-select: none;
+    font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
     box-shadow: rgba(0, 0, 0, 0.05) 0px 6px 24px 0px, rgba(0, 0, 0, 0.08) 0px 0px 0px 1px;
     background: #fff;
     color: #333;
@@ -11,7 +35,7 @@
     position: absolute;
     z-index: 9999;
     display: none;
-    font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+    border-radius: 6px;
 }
 
 .gdtp-datetimepicker * {
@@ -20,43 +44,38 @@
 
 .gdtp-datetimepicker ::-webkit-scrollbar-track
 {
-	-webkit-box-shadow: inset 0 0 5px rgba(0, 0, 0, 0.122);
+	-webkit-box-shadow: inset 0 0 6px rgba(0, 0, 0, 0.122);
 	background-color: #F5F5F5;
 }
 
 .gdtp-datetimepicker ::-webkit-scrollbar
 {
-	width: 5px;
+	width: 6px;
 	background-color: #F5F5F5;
 }
 
 .gdtp-datetimepicker ::-webkit-scrollbar-thumb
 {
-	background-color: hsl(0, 0%, 64%);
+	background-color: #94a3b8;
     border-radius: 6px;
 }
 
-.gdtp-datetimepicker:after {
-    content: '';
-    display: block;
-    clear: both;
+.gdtp-input,
+.gdtp-input:read-only {
+    background: #fff;
 }
 
 /*---------- buttons ---------- */
-.gdtp-datetimepicker button {
+.gdtp-button-icon {
     border: none;
 }
 
-.gdtp-datetimepicker .gdtp-label i,
-.gdtp-datetimepicker .gdtp-prev,
-.gdtp-datetimepicker .gdtp-next,
-.gdtp-datetimepicker .gdtp-today-button {
+.gdtp-monthpicker__label:after,
+.gdtp-button-icon {
     background-image: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAGQAAAAeCAMAAADthUvBAAAATlBMVEUAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAADEoqZZAAAAGXRSTlMAj1rVCsgG+/Pt493Qem9pTEsU276yr04a8h2FRwAAALhJREFUSMft1ssKgzAQheGZxrtWq73+7/+ilW5cGKZEGLDSswlkkS/kMon8c5SoinsU3BUFd0Vho6JG98rYqqBRg5hhKENvIsQnHekylBFOJoLGBpSUXMBUAHRtkGjYCitFSURG+KKwKIuRhDxhUZyQAYD7A4Cz03LlXf4ZvIfQBbeNzymLualoC78jfKWcRIqayvEy1vASyYDMr6zcmnaakdCEzLNA7qLU7+3Rsp/f3/pI7CtH2703SV8YXip2F0oAAAAASUVORK5CYII=)
 }
 
-.gdtp-datetimepicker .gdtp-next,
-.gdtp-datetimepicker .gdtp-prev,
-.gdtp-datetimepicker .gdtp-today-button {
+.gdtp-button-icon {
     background-color: transparent;
     background-repeat: no-repeat;
     cursor: pointer;
@@ -68,7 +87,8 @@
     width: 20px;
 }
 
-.gdtp-datetimepicker .gdtp-label i {
+.gdtp-monthpicker__label:after {
+    content: '';
     display: inline-block;
     opacity: .5;
     width: 9px;
@@ -78,21 +98,12 @@
     background-position: -92px -19px;
 }
 
-.gdtp-datetimepicker .gdtp-today-button:hover,
-.gdtp-datetimepicker .gdtp-next:hover,
-.gdtp-datetimepicker .gdtp-prev:hover {
+.gdtp-button-icon:hover {
     opacity: 1;
 }
 
-/*---------- datepicker ---------- */
-
-.gdtp-datetimepicker .gdtp-datepicker {
-    float: left;
-}
-
-/*---------- monthpicker ---------- */
-
-.gdtp-datetimepicker .gdtp-monthpicker {
+/*---------- month picker ---------- */
+.gdtp-monthpicker {
     position: relative;
     display: flex;
     text-align: center;
@@ -100,44 +111,37 @@
     height: var(--gdtp-month-picker-height);
 }
 
-.gdtp-datetimepicker .gdtp-monthpicker .gdtp-prev {
+.gdtp-monthpicker__prev {
     background-position: -20px 0
 }
 
-.gdtp-datetimepicker .gdtp-monthpicker .gdtp-next {
+.gdtp-monthpicker__next {
     background-position: 0 0
 }
 
-.gdtp-datetimepicker .gdtp-monthpicker .gdtp-today-button {
+.gdtp-monthpicker__today {
     background-position: -70px 0;
     margin-left: 5px
 }
 
-.gdtp-datetimepicker .gdtp-monthpicker .gdtp-label {
+.gdtp-monthpicker__label {
     position: relative;
     font-size: var(--gdtp-font-size);
     font-weight: 500;
     cursor: pointer
 }
 
-.gdtp-datetimepicker .gdtp-monthpicker .gdtp-label:hover > span {
-    text-decoration: underline
-}
-
-.gdtp-datetimepicker .gdtp-monthpicker .gdtp-label:hover i {
-    opacity: 1.0
-}
-
-.gdtp-datetimepicker .gdtp-month {
+.gdtp-monthpicker__months {
     width: 100px;
+    position: relative;
 }
 
-.gdtp-datetimepicker .gdtp-year {
+.gdtp-monthpicker__years {
     width: 60px;
+    position: relative;
 }
 
-.gdtp-datetimepicker .gdtp-select {
-    display: none;
+.gdtp-monthpicker__select {
     border: 1px solid #ccc;
     background: #fff;
     position: absolute;
@@ -145,88 +149,83 @@
     max-height: 160px;
     width: 100%;
     overflow-y: scroll;
+    overscroll-behavior: contain;
+    z-index: 2;
+    display: none;
 }
 
-.gdtp-datetimepicker .gdtp-select .gdtp-option {
+.gdtp-monthpicker__option {
     padding: 2px 5px;
     text-decoration: none;
     font-weight: normal;
-}
-
-.gdtp-datetimepicker .gdtp-select .gdtp-option:hover {
-    color: #fff;
-    background: #ff8000
-}
-
-.gdtp-datetimepicker .gdtp-select .gdtp-option.gdtp-current {
-    background: #3af;
-    color: #fff;
-}
-
-/*---------- calendar ---------- */
-
-.gdtp-datetimepicker .gdtp-calendar {
-    clear: both;
-    border-color: #ddd;
-    border-style: solid;
-    border-width: 1px 0 0 1px;
-}
-
-.gdtp-datetimepicker .gdtp-weekdays,
-.gdtp-datetimepicker .gdtp-days {
-    display: grid;
-    grid-template-columns: repeat(7, 1fr);
-}
-
-.gdtp-datetimepicker .gdtp-weekday,
-.gdtp-datetimepicker .gdtp-date {
-    display: flex;
-    align-items: center;
-    justify-content: end;
-    font-size: var(--gdtp-font-size);
-    height: var(--gdtp-day-height);
-    padding: 0 5px;
-    background: hsla(0, 0%, 96%, 1);
-    color: hsla(0, 0%, 40%, 1);
-    border-color: #ddd;
-    border-width: 0 1px 1px 0;
-    border-style: solid;
     cursor: pointer;
 }
 
-.gdtp-datetimepicker .gdtp-weekday {
-    font-weight: 600;
-    background: hsla(0, 0%, 93%, 1);
+.gdtp-monthpicker__option:hover {
+    background: var(--gdtp-month-picker-hover-bg);
 }
 
-.gdtp-datetimepicker .gdtp-other-month,
-.gdtp-datetimepicker .gdtp-disabled {
-    background: hsla(0, 0%, 96%, 0.5);
-    color: hsla(0, 0%, 40%, 0.5);
+.gdtp-monthpicker__option.is-current {
+    background: var(--gdtp-month-picker-current-bg);
+    color: var(--gdtp-month-picker-current-color);
+}
+
+/*---------- calendar ---------- */
+.gdtp-calendar__dates,
+.gdtp-calendar__weekdays {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    gap: 4px;
+}
+
+.gdtp-calendar__date,
+.gdtp-calendar__weekday {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: var(--gdtp-font-size);
+    height: var(--gdtp-day-height);
+    width: var(--gdtp-day-width);
+    padding: 0 5px;
+    cursor: pointer;
+    border-radius: 50%;
+}
+
+.gdtp-calendar__weekday {
+    font-weight: 600;
+}
+
+.gdtp-calendar__date:hover {
+    background-color: var(--gdtp-date-hover-bg);
+}
+
+.gdtp-calendar__date.is-today {
+    color: var(--gdtp-today-color);
+}
+
+.gdtp-calendar__date.is-current {
+    background-color: var(--gdtp-date-current-bg);
+    color: var(--gdtp-date-current-color)
+}
+
+.gdtp-calendar__date.is-other-month span {
+    opacity: .5;
+}
+
+.gdtp-calendar__date.is-disabled {
     cursor: default;
 }
 
-.gdtp-datetimepicker .gdtp-today {
-    color: #3af;
+.gdtp-calendar__date.is-disabled span {
+    opacity: .3;
 }
 
-.gdtp-datetimepicker .gdtp-date:hover {
-    background: #FFF6E3;
+.gdtp-calendar__date.is-weekend:not(.is-current) {
+    color: var(--gdtp-date-weekend-color);
 }
 
-.gdtp-datetimepicker .gdtp-date.gdtp-current {
-    background-color: #3af;
-    color: #fff;
-}
-
-.gdtp-datetimepicker .gdtp-date.gdtp-highlighted {
-    background-color: #DEAA79;
-    color: #fff;
-}
-
-/*---------- timepicker ---------- */
-.gdtp-datetimepicker .gdtp-timepicker {
-    float: left;
+/*---------- Timer ---------- */
+.gdtp-timepicker {
     display: flex;
     flex-direction: column;
     justify-content: center;
@@ -236,12 +235,12 @@
     margin-top: 8px;
 }
 
-.gdtp-datetimepicker .gdtp-timepicker:not(.active) {
+/* .gdtp-timepicker:not(.active) {
     display: none;
-}
+} */
 
-.gdtp-datetimepicker .gdtp-timepicker .gdtp-prev,
-.gdtp-datetimepicker .gdtp-timepicker .gdtp-next {
+.gdtp-timepicker__prev,
+.gdtp-timepicker__next {
     background-position: -40px -15px;
     height: 15px;
     width: 30px;
@@ -249,28 +248,23 @@
     margin-top: 7px
 }
 
-.gdtp-datetimepicker .gdtp-timepicker .gdtp-prev {
+.gdtp-timepicker__prev {
     background-position: -40px 0;
     margin-bottom: 7px;
     margin-top: 0
 }
 
-.gdtp-datetimepicker .gdtp-time-box {
-    overflow: hidden;
+.gdtp-timepicker__times {
     border: 1px solid #ddd;
-}
-
-.gdtp-datetimepicker .gdtp-time-variant {
     overflow-y: scroll;
+    overscroll-behavior: contain;
     height: calc(var(--gdtp-day-height) * 6);
     position: relative;
 }
 
-.gdtp-datetimepicker .gdtp-time {
+.gdtp-timepicker__time {
     padding: 0 4px;
-    background: #f5f5f5;
     border-top: 1px solid #ddd;
-    color: #666;
     font-size: var(--gdtp-font-size);
     text-align: center;
     border-collapse: collapse;
@@ -280,17 +274,36 @@
     line-height: var(--gdtp-day-height);
 }
 
-.gdtp-datetimepicker .gdtp-time:first-child {
+.gdtp-timepicker__time:first-child {
     border-top: none;
 }
 
-.gdtp-datetimepicker .gdtp-disabled {
-    background: hsla(0, 0%, 96%, 0.5);
-    color: hsla(0, 0%, 40%, 0.5);
+.gdtp-timepicker__time:hover {
+    background-color: var(--gdtp-time-hover-bg);
+}
+
+.gdtp-timepicker__time.is-disabled {
+    color: var(--gdtp-time-disabled-color);
     cursor: default;
 }
 
-.gdtp-datetimepicker .gdtp-time.gdtp-current {
-    background-color: #3af;
-    color: #fff;
+.gdtp-timepicker__time.is-current {
+    background-color: var(--gdtp-time-current-bg);
+    color: var(--gdtp-time-current-color);
+}
+
+/*---------- Footer ---------- */
+.gdtp-calendar-footer {
+    display: flex;
+    padding: 8px;
+    gap: 16px;
+}
+
+.gdtp-calendar-footer .gdtp-button {
+    color: #4b5563;
+}
+
+.gdtp-calendar-footer .gdtp-button:hover {
+    color: #2563eb;
+    text-decoration: underline;
 }

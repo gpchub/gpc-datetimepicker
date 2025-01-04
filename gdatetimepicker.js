@@ -26,68 +26,40 @@ class GDatetimepicker
 {
     defaultOptions  = {
         /** @var {String} Format datetime */
-		format: 'YYYY/MM/DD HH:mm',
-
-        /** @var {Boolean} Đóng khi chọn ngày */
-		closeOnDateSelect: false,
-        /** @var {Boolean} Đóng khi chọn giờ */
-		closeOnTimeSelect: true,
-
+		format: 'DD/MM/YYYY HH:mm',
         /** @var {String|null} Ngày ban đầu, format Y/m/d hoặc Y/m/d H:i (nếu có timepicker)  */
 		initValue: null,
-        /** @var {String} Ngày nhỏ nhất trong lịch, format Y/m/d H:i */
-		minDate: '',
-        /** @var {String} Ngày lớn nhất trong lịch, format Y/m/d H:i */
-		maxDate: '',
-        /** @var {String} Giờ nhỏ nhất trong timepicker, format H:i */
-		minTime: '',
-        /** @var {String} Giờ nhỏ nhất trong timepicker, format H:i */
-		maxTime: '',
+
         /** @var {Number} Năm nhỏ nhất trong lịch */
-		yearStart: 1970,
+		yearStart: (new Date()).getFullYear() - 5,
         /** @var {Number} Năm lớn nhất trong lịch */
-		yearEnd: 2030,
+		yearEnd: (new Date()).getFullYear() + 5,
+        /** @var Number Thứ bắt đầu trong tuần (0: CN, 1-6: T2-T7) */
+        dayOfWeekStart: 0,
 
         /** @var {Array} Mảng các ngày cho phép chọn, format Y/m/d */
-		allowDates: [],
-        /** @var {String} RegExp các ngày cho phép chọn */
-		allowDateRe: null,
+		allowedDates: [],
         /** @var {Array} Mảng các ngày không được phép chọn, format Y/m/d */
 		disabledDates: [],
         /** @var {Array} Mảng các thứ trong tuần không được phép chọn, format Y/m/d */
 		disabledWeekDays: [],
-        /** @var {Array} Mảng các ngày highlight, format Y/m/d */
-        highlightedDates: [],
-        /** @var {Array} Mảng các khoảng ngày highlight, format Y/m/d,Y/m/d */
-		highlightedPeriods: [],
-
-        /** @var {Array} Mảng các giờ cho phép chọn, format H:i */
-		allowTimes: [],
-        /** @var {Array} Mảng các giờ không được phép chọn, format H:i */
-        disabledTimes: [],
-
-        /** @var Number Thứ bắt đầu trong tuần (0: CN, 1-6: T2-T7) */
-        dayOfWeekStart: 0,
-        /** @var Boolean Hiện nút Today */
-		todayButton: true,
-        /** @var Boolean Hiện nút Tháng trước */
-        prevButton: true,
-        /** @var Boolean Hiện nút Tháng sau */
-		nextButton: true,
+        /** @var {String} Ngày nhỏ nhất trong lịch, format Y/m/d H:i */
+		minDate: '',
+        /** @var {String} Ngày lớn nhất trong lịch, format Y/m/d H:i */
+		maxDate: '',
 
         /** @var Boolean Hiện timepicker */
-		timepicker: true,
+		timepicker: false,
         /** @var Number Khoảng cách phút trong ô chọn giờ */
-		step: 60,
-        /** @var String Cách làm tròn số phút trong ô chọn giờ */
-		roundTime: 'round', // ceil, floor
-
-        /** @var Boolean Hiện input mask */
-		mask: false,
-        /** @var Boolean Validate khi rời khỏi input */
-		validateOnBlur: true,
-        /** @var Boolean Cho phép input empty khi validate */
-		allowBlank: true,
+		step: 15,
+        /** @var {Array} Mảng các giờ cho phép chọn, format H:i */
+		allowedTimes: [],
+        /** @var {Array} Mảng các giờ không được phép chọn, format H:i */
+        disabledTimes: [],
+        /** @var {String} Giờ nhỏ nhất trong timepicker, format H:i */
+		minTime: '08:00',
+        /** @var {String} Giờ nhỏ nhất trong timepicker, format H:i */
+		maxTime: '18:00',
 
         /** @var String Selector chứa datetime picker */
         parentSelector: 'body',
@@ -97,40 +69,44 @@ class GDatetimepicker
 		next: 'gdtp-next',
         /** @var String Classname nút prev ở phần chọn tháng và chọn giờ */
 		prev : 'gdtp-prev',
-        /** @var Boolean Datetimepicker position: fixed */
-		fixed: false,
+        /** @var {Boolean} Đóng khi chọn ngày */
+		closeOnDateSelect: false,
 
+        /** @var {function} Callback function trước khi render timer */
         beforeShowTime: null,
-		beforeShowDay: function () {},
-        onSelectDate: function () {},
-		onSelectTime: function () {},
-		onChangeMonth: function () {},
-		onGetWeekOfYear: function () {},
-		onChangeYear: function () {},
-		onChangeDateTime: function () {},
-		onShow: function () {},
-		onClose: function () {},
-		onGenerate: function () {},
+        onChange: null,
 	};
 
     i18n = {
-        en: { // English
+        'en': { // English
             months: [
                 "January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"
             ],
             monthsShort: ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"],
-            dayOfWeekShort: [ "Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat" ],
+            dayOfWeekShort: ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"],
             dayOfWeek: ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"],
             meridiem: ['AM', 'PM'],
+            close: 'Close',
+            clear: 'Clear',
+            today: 'Today',
+            thisMonth: 'This month',
+            nextMonth: 'Next month',
+            prevMonth: 'Previous month',
         },
         vi: { // Vietnamese
             months: [
                 "Tháng 1", "Tháng 2", "Tháng 3", "Tháng 4", "Tháng 5", "Tháng 6", "Tháng 7", "Tháng 8", "Tháng 9", "Tháng 10", "Tháng 11", "Tháng 12"
             ],
             monthsShort: ["Th1", "Th2", "Th3", "Th4", "Th5", "Th6", "Th7", "Th8", "Th9", "Th10", "Th11", "Th12"],
-            dayOfWeekShort: [ "CN", "T2", "T3", "T4", "T5", "T6", "T7" ],
+            dayOfWeekShort: ["CN", "T2", "T3", "T4", "T5", "T6", "T7"],
             dayOfWeek: ["Chủ nhật", "Thứ hai", "Thứ ba", "Thứ tư", "Thứ năm", "Thứ sáu", "Thứ bảy"],
             meridiem: ['AM', 'PM'],
+            close: 'Đóng',
+            clear: 'Xoá',
+            today: 'Hôm nay',
+            thisMonth: 'Tháng này',
+            nextMonth: 'Tháng sau',
+            prevMonth: 'Tháng trước',
         },
     };
 
@@ -139,6 +115,7 @@ class GDatetimepicker
     timeFormat = 'HH:mm';
     dateFormat = 'YYYY/MM/DD';
     datetimeFormat = 'YYYY/MM/DD HH:mm';
+
     /** @var {String} Định dạng cho datetimepicker value, là dạng date hay datetime tuỳ theo timepicker có hay không */
     valueFormat = '';
 
@@ -148,32 +125,76 @@ class GDatetimepicker
     currentViewDateTime = null;
     /** @var {Date|null} thời gian hiện tại của datetimepicker */
     currentValue = null;
-
-    ctrlDown = false;
-    cmdDown = false;
+    /** @var {Boolean} */
+    isDatetimepickerOpen = false;
 
     constructor(el, opts) {
-        this.$input = this.getEl(el);
+        this.$input = document.querySelector(el);
         if (!this.$input) return;
 
         this.options = { ...this.defaultOptions, ...this.normalizeOptions(opts) };
 
         this.valueFormat = this.options.timepicker ? this.datetimeFormat : this.dateFormat;
 
+        if (! this.options.timepicker) {
+            this.options.format = this.options.format.replace(/(HH:mm|HHmm|HH mm|HH:mm:ss|HHmmss|HH mm ss)/g, '').trim();
+        }
+
         if (this.options.locale && this.i18n[this.options.locale]) {
             this.globalLocale = this.options.locale;
         }
 
         this.$datetimePicker = this.createElement('div', 'gdtp-datetimepicker');
-        this.$datePicker = this.createElement('div', 'gdtp-datepicker active');
+        this.$datePicker = this.createElement('section', 'gdtp-datepicker active');
+        this.$monthPicker = this.createElement('header', 'gdtp-monthpicker', `
+            <button type="button" class="gdtp-monthpicker__prev gdtp-button-icon gdtp-prev"></button>
+            <button type="button" class="gdtp-monthpicker__today gdtp-button-icon"></button>
+            <div class="gdtp-monthpicker__months">
+                <span class="gdtp-monthpicker__label is-month"></span>
+                <div class="gdtp-monthpicker__select is-month"></div>
+            </div>
+            <div class="gdtp-monthpicker__years">
+                <span class="gdtp-monthpicker__label is-year"></span>
+                <div class="gdtp-monthpicker__select is-year"></div>
+            </div>
+            <button type="button" class="gdtp-monthpicker__next gdtp-button-icon gdtp-next"></button>
+        `);
+        this.$monthSelect = this.$monthPicker.querySelector('.gdtp-monthpicker__select.is-month');
+        this.$yearSelect = this.$monthPicker.querySelector('.gdtp-monthpicker__select.is-year');
         this.$calendar = this.createElement('div', 'gdtp-calendar');
-        this.$monthPicker = this.createElement('div', 'gdtp-monthpicker', '<button type="button" class="gdtp-prev"></button><button type="button" class="gdtp-today-button"></button><div class="gdtp-label gdtp-month"><span></span><i></i></div><div class="gdtp-label gdtp-year"><span></span><i></i></div><button type="button" class="gdtp-next"></button>');
-        this.$monthSelect = this.createElement('div', 'gdtp-select gdtp-monthselect', '<div></div>');
-        this.$yearSelect = this.createElement('div', 'gdtp-select gdtp-yearselect', '<div></div>');
-        this.$timePicker = this.createElement('div', 'gdtp-timepicker active', '<button type="button" class="gdtp-prev"></button><div class="gdtp-time-box"><div class="gdtp-time-variant"></div></div><button type="button" class="gdtp-next"></button>');
-        this.$timebox = this.$timePicker.querySelector('.gdtp-time-variant');
+        this.$timePicker = this.createElement('div', 'gdtp-timepicker', `
+            <button type="button" class="gdtp-timepicker__prev gdtp-button-icon"></button>
+            <div class="gdtp-timepicker__times"></div>
+            <button type="button" class="gdtp-timepicker__next gdtp-button-icon"></button>
+        `);
+        this.$timebox = this.$timePicker.querySelector('.gdtp-timepicker__times');
 
         this.init();
+    }
+
+    normalizeOptions(opts) {
+        if (!this.isPlainObject(opts)) return {};
+
+        opts.allowedDates = this.normalizeArray(opts.allowedDates);
+        opts.disabledDates = this.normalizeArray(opts.disabledDates);
+        opts.disabledWeekDays = this.normalizeArray(opts.disabledWeekDays);
+        opts.minDate = this.isValidDate(opts.minDate) ? opts.minDate : '';
+        opts.maxDate = this.isValidDate(opts.maxDate) ? opts.maxDate : '';
+
+        opts.allowedTimes = this.normalizeArray(opts.allowedTimes);
+        opts.disabledTimes = this.normalizeArray(opts.disabledTimes);
+        opts.minTime = this.isValidTime(opts.minTime) ? opts.minTime : this.defaultOptions.minTime;
+        opts.maxTime = this.isValidTime(opts.maxTime) ? opts.maxTime : this.defaultOptions.maxTime;
+
+        opts.initValue = this.isValidDate(opts.initValue) ? opts.initValue : '';
+
+        if (isNaN(opts.dayOfWeekStart)) {
+            opts.dayOfWeekStart = 0;
+        } else {
+            opts.dayOfWeekStart = parseInt(opts.dayOfWeekStart, 10) % 7;
+        }
+
+        return opts;
     }
 
     init() {
@@ -183,249 +204,184 @@ class GDatetimepicker
     }
 
     initCurrentValue() {
-        if (!this.options.initValue && !this.$input.value) {
-            return;
-        }
+        const initDate = this.options.initValue ? this.parseDate(this.options.initValue) : null;
+        const inputDate = this.$input.value ? this.parseInputDate(this.$input.value) : null;
 
-        let initDate;
-        let inputDate;
-
-        if (this.options.initValue) {
-            initDate = this.parseDate(this.options.initValue);
-        }
-
-        if (this.$input.value) {
-            inputDate = this.parseInputDate(this.$input.value);
-        }
-
+        this.currentValue = initDate || inputDate;
         if (initDate) {
-            this.currentValue = initDate;
             this.$input.value = this.formatInputDate(initDate);
-        } else {
-            this.currentValue = inputDate;
         }
     }
 
     initCurrentViewDateTime() {
-        this.currentViewDateTime = this.currentValue ?? this.now();
+        this.currentViewDateTime = this.currentValue ? new Date(this.currentValue) : new Date();
+        this.roundTimeByStep(this.currentViewDateTime, this.options.step);
     }
 
     getValue() {
         return this.currentValue;
     }
 
+    getValueString() {
+        return this.currentValue ? this.formatDate(this.currentValue) : '';
+    }
+
     createDateTimePicker() {
         const options = this.options;
 
         this.$input.setAttribute('readonly', true);
-        this.$monthPicker.querySelector('.gdtp-month span').after(this.$monthSelect);
-        this.$monthPicker.querySelector('.gdtp-year span').after(this.$yearSelect);
 
         this.$datePicker.append(this.$monthPicker);
         this.$datePicker.append(this.$calendar);
 
         this.$datetimePicker.append(this.$datePicker);
-        this.$datetimePicker.append(this.$timePicker);
-
-        if (options.insideParent) {
-            this.$input.parentElement.append(this.$datetimePicker);
-        } else {
-            document.querySelector(options.parentSelector).append(this.$datetimePicker);
-        }
-
         if (options.timepicker) {
-            this.$timePicker.classList.add('active');
-        } else {
-            this.$timePicker.classList.remove('active');
+            this.$datetimePicker.append(this.$timePicker);
         }
 
-        this.$monthPicker.querySelector('.gdtp-today-button').style.visibility = !options.todayButton ? 'hidden' : 'visible';
-        this.$monthPicker.querySelector('.' + options.prev).style.visibility = !options.prevButton ? 'hidden' : 'visible';
-        this.$monthPicker.querySelector('.' + options.next).style.visibility = !options.nextButton ? 'hidden' : 'visible';
+        document.body.append(this.$datetimePicker);
 
         this.bindInputEvents();
         this.bindDatepickerEvents();
         this.bindMonthEvents();
-        this.bindTimeEvents();
         this.bindCalendarEvents();
-        this.triggerEvent(this.$datetimePicker, 'dt.change');
-    }
 
-    bindDatepickerEvents() {
-        document.addEventListener('click', (e) => {
-            if (e.target === this.$input || this.$datetimePicker.contains(e.target)) {
-                return false;
-            }
-
-            this.triggerEvent(this.$datetimePicker, 'dt.close');
-        });
-
-        this.$datetimePicker.addEventListener('click', (e) => {
-            e.stopPropagation();
-            e.preventDefault();
-            this.hideEl(this.$yearSelect);
-            this.hideEl(this.$monthSelect);
-            return false;
-        });
-
-        this.$datetimePicker.addEventListener('dt.change', (e) => {
-            this.buildHtml();
-            e.stopPropagation();
-        });
-
-        this.$datetimePicker.addEventListener('dt.generate', (e) => {
-            if (this.options.onGenerate && typeof this.options.onGenerate === 'function') {
-                this.options.onGenerate.call(this, this.currentTime, this.$datetimePicker.dataset.input);
-            }
-        });
-
-        this.$datetimePicker.addEventListener('dt.open', (e) => {
-            let onShow = true;
-            if (this.options.onShow && typeof this.options.onShow === 'function') {
-                onShow = this.options.onShow.call(this, this.currentTime, this.$input, e);
-            }
-            if (onShow !== false) {
-                this.showEl(this.$datetimePicker);
-                this.setPosition();
-                window.removeEventListener('resize', this.setPosition);
-                window.addEventListener('resize', this.setPosition);
-
-                this.triggerEvent(this.$datetimePicker, 'dt.afterOpen');
-            }
-        });
-
-        this.$datetimePicker.addEventListener('dt.close', (e) => {
-            let onClose = true;
-            this.$monthPicker.querySelectorAll('.gdtp-select').forEach((elem) => {
-                this.hideEl(elem);
-            });
-
-            if (this.options.onClose && typeof this.options.onClose === 'function') {
-                onClose = this.options.onClose.call(this, this.currentTime, this.$input, e);
-            }
-
-            if (onClose !== false) {
-                this.hideEl(this.$datetimePicker);
-            }
-
-            e.stopPropagation();
-        });
-
-        this.$datetimePicker.addEventListener('dt.toggle', (e) => {
-            if (this.isVisible(this.$datetimePicker)) {
-                this.triggerEvent(this.$datetimePicker, 'dt.close');
-            } else {
-                this.triggerEvent(this.$datetimePicker, 'dt.open');
-            }
-        });
-
-        this.$datetimePicker.addEventListener('dt.afterOpen', (e) => {
-            if (!this.options.timepicker) return;
-
-            let classType;
-
-            if (this.$timebox.querySelector('.gdtp-current')) {
-                classType = '.gdtp-current';
-            }
-
-            if (classType) {
-                /** scroll timebox tới time đang được chọn */
-                let top = this.$timebox.querySelector(classType);
-                this.$timebox.scrollTop = top.offsetTop;
-            }
-        });
-
-        this.$datetimePicker.addEventListener('dt.changedatetime', (e) => {
-            if (this.options.onChangeDateTime && typeof this.options.onChangeDateTime === 'function') {
-                this.options.onChangeDateTime.call(this, this.currentViewDateTime, this.$input, e);
-                this.triggerEvent(this.$input, 'change');
-            }
-        });
-
-    }
-
-    inputKeyDownHandler = (e) => {
-        let key = e.which;
-        if (key === GKeycode.ENTER || key === GKeycode.TAB) {
-            this.triggerEvent(this.$datetimePicker, 'dt.close');
-            this.$input.focus();
-            return false;
+        if (options.timepicker) {
+            this.bindTimeEvents();
         }
-    };
+
+        this.triggerEvent(this.$datetimePicker, 'dt.changeView');
+    }
+
+    open() {
+        if (this.isDatetimepickerOpen) {
+            return;
+        }
+
+        this.showEl(this.$datetimePicker, 'flex');
+        this.setPosition();
+        window.removeEventListener('resize', this.setPosition);
+        window.addEventListener('resize', this.setPosition);
+
+        this.triggerEvent(this.$datetimePicker, 'dt.afterOpen');
+        this.isDatetimepickerOpen = true;
+    }
+
+    close() {
+        this.closeMonthYearPicker();
+        this.hideEl(this.$datetimePicker);
+        this.isDatetimepickerOpen = false;
+    }
+
+    closeMonthYearPicker() {
+        this.hideEl(this.$monthSelect);
+        this.hideEl(this.$yearSelect);
+    }
+
+    on(eventName, callback) {
+        if (typeof callback !== 'function') return;
+
+        switch (eventName) {
+            case 'change':
+                this.options.onChange = callback;
+                break;
+        }
+    }
 
     bindInputEvents() {
-        ['dt.open', 'focusin'].forEach((eventName) => {
+        ['click', 'focusin'].forEach((eventName) => {
             this.$input.addEventListener(eventName, (e) => {
                 if (this.$input.matches(':disabled')) {
                     return;
                 }
 
-                if (this.$input.matches(':disabled')) {
-                    return;
-                }
-
-                if (this.options.mask) {
-                    this.setMask(this.options);
-                }
-
-                this.triggerEvent(this.$datetimePicker, 'dt.open');
+                this.open();
             });
         });
 
-        this.$input.addEventListener('keydown', this.inputKeyDownHandler);
+        this.$input.addEventListener('keydown', (e) => {
+            let key = e.which;
+            if (key === GKeycode.ENTER || key === GKeycode.ESC || key === GKeycode.TAB) {
+                this.close();
+                this.$input.focus();
+                return false;
+            }
+        });
+    }
+
+    bindDatepickerEvents() {
+        /*---------- Click outside ---------- */
+        document.addEventListener('click', (e) => {
+            if (e.target === this.$input || this.$datetimePicker.contains(e.target)) {
+                return false;
+            }
+
+            this.close();
+        });
+
+        this.$datetimePicker.addEventListener('click', (e) => {
+            e.stopPropagation();
+            e.preventDefault();
+            this.closeMonthYearPicker();
+            return false;
+        });
+
+        this.$datetimePicker.addEventListener('dt.changeView', (e) => {
+            e.stopPropagation();
+            this.buildHtml();
+        });
+
+        this.$datetimePicker.addEventListener('dt.change', (e) => {
+            e.stopPropagation();
+
+            if (this.options.onChange && typeof this.options.onChange === 'function') {
+                this.options.onChange.call(this, this.currentValue);
+            }
+        });
+
+        this.$datetimePicker.addEventListener('dt.afterOpen', (e) => {
+            e.stopPropagation();
+            if (!this.options.timepicker) return;
+
+            /** scroll timebox tới time đang được chọn */
+            let top = this.$timebox.querySelector('.is-current');
+            this.$timebox.scrollTop = top?.offsetTop || 0;
+        });
     }
 
     bindMonthEvents() {
         /*---------- click label tháng, năm ---------- */
-        this.$monthPicker.querySelectorAll('.gdtp-month span, .gdtp-year span').forEach((elem) => {
+        this.$monthPicker.querySelectorAll('.gdtp-monthpicker__label').forEach((elem) => {
             elem.addEventListener('click', (e) => {
                 e.stopPropagation();
 
-                const $select = elem.nextSibling;
-                this.$monthPicker.querySelectorAll('.gdtp-select').forEach((s) => {
-                    this.hideEl(s);
-                });
-
+                const $select = elem.nextElementSibling;
+                this.closeMonthYearPicker();
                 this.showEl($select);
-                $select.firstChild.scrollTop = $select.querySelector('.gdtp-current').offsetTop;
+                $select.scrollTop = $select.querySelector('.is-current').offsetTop;
             });
         });
 
         /*---------- Click option trong list tháng, năm ---------- */
         this.$monthPicker.addEventListener('click', (e) => {
-            if (!e.target.matches('.gdtp-option')) return;
+            if (!e.target.matches('.gdtp-monthpicker__option')) return;
 
-            const { currentViewDateTime, options } = this;
+            const { currentViewDateTime } = this;
             const elem = e.target;
-            const selectElem = elem.closest('.gdtp-select');
-
-            let year = currentViewDateTime.getFullYear();
-            if (currentViewDateTime) {
-                currentViewDateTime[selectElem.classList.contains('gdtp-monthselect') ? 'setMonth' : 'setFullYear'](elem.dataset.value);
-            }
+            const selectElem = elem.closest('.gdtp-monthpicker__select');
 
             this.hideEl(selectElem);
-
-            this.triggerEvent(this.$datetimePicker, 'dt.change');
-
-            if (options.onChangeMonth && typeof options.onChangeMonth === 'function') {
-                options.onChangeMonth.call(this, currentViewDateTime, this.$input);
-            }
-
-            if (year !== currentViewDateTime.getFullYear() && typeof options.onChangeYear === 'function') {
-                options.onChangeYear.call(this, currentViewDateTime, this.$input);
-            }
+            currentViewDateTime[selectElem.classList.contains('is-month') ? 'setMonth' : 'setFullYear'](elem.dataset.value);
+            this.triggerEvent(this.$datetimePicker, 'dt.changeView');
         });
 
         /*---------- click today button ---------- */
 		this.$monthPicker.addEventListener('click', (e) => {
-            if (!e.target.matches('.gdtp-today-button')) return;
+            if (!e.target.matches('.gdtp-monthpicker__today')) return;
 
-            let today = this.now();
-            this.currentViewDateTime.setMonth(today.getMonth());
-            this.currentViewDateTime.setDate(today.getDate());
-            this.currentViewDateTime.setFullYear(today.getFullYear());
-            this.triggerEvent(this.$datetimePicker, 'dt.change');
+            let today = new Date();
+            this.currentViewDateTime.setFullYear(today.getFullYear(), today.getMonth(), today.getDate());
+            this.triggerEvent(this.$datetimePicker, 'dt.changeView');
         });
 
         /*---------- click nút mũi tên ở lựa chọn tháng ---------- */
@@ -434,10 +390,39 @@ class GDatetimepicker
 
             const elem = e.target;
 
-            if (elem.classList.contains(this.options.next)) {
-                this.nextMonth();
-            } else if (elem.classList.contains(this.options.prev)) {
-                this.prevMonth();
+            if (elem.classList.contains('gdtp-next')) {
+                this.goToNextMonth();
+            } else if (elem.classList.contains('gdtp-prev')) {
+                this.goToPrevMonth();
+            }
+        });
+    }
+
+    bindCalendarEvents() {
+        /*---------- click chọn ngày ---------- */
+        this.$calendar.addEventListener('click', (e) => {
+            e.stopPropagation();
+
+            const elem = e.target.closest('.gdtp-calendar__date');
+
+            if (!elem || !elem.matches('.gdtp-calendar__date')) return false;
+
+            if (elem.classList.contains('is-disabled')) return false;
+
+            const { currentViewDateTime, options } = this;
+
+            currentViewDateTime.setFullYear(elem.dataset.year, elem.dataset.month, elem.dataset.date);
+            this.currentValue = new Date(currentViewDateTime);
+            this.$input.value = this.formatInputDate(this.currentValue);
+
+            this.closeMonthYearPicker();
+            this.triggerEvent(this.$datetimePicker, 'dt.change');
+            this.triggerEvent(this.$datetimePicker, 'dt.changeView');
+            this.triggerEvent(this.$input, 'change');
+
+            // nếu không có timepicker thì luôn đóng khi chọn ngày
+            if (options.closeOnDateSelect === true  || !options.timepicker) {
+                this.close();
             }
         });
     }
@@ -445,265 +430,174 @@ class GDatetimepicker
     bindTimeEvents() {
         /*---------- click nút mũi tên ở lựa chọn time ---------- */
         this.$timePicker.addEventListener('click', (e) => {
-            if (!e.target.matches('.gdtp-prev, .gdtp-next')) return;
+            if (!e.target.matches('.gdtp-timepicker__prev, .gdtp-timepicker__next')) return;
 
             const elem = e.target;
             const timebox = this.$timebox;
 
             let currentScrollTop = timebox.scrollTop;
-            let timeElem = timebox.querySelector('.gdtp-time');
+            let timeElem = timebox.querySelector('.gdtp-timepicker__time');
             let timeHeight = timeElem.offsetHeight;
-            if (elem.classList.contains(this.options.next)) {
+            if (elem.classList.contains('gdtp-timepicker__next')) {
                 timebox.scrollTop = currentScrollTop + timeHeight;
-            } else if (elem.classList.contains(this.options.prev)) {
+            } else if (elem.classList.contains('gdtp-timepicker__prev')) {
                 timebox.scrollTop = currentScrollTop - timeHeight;
             }
         });
 
         /*---------- click chọn giờ ---------- */
 		this.$timePicker.addEventListener('click', (e) => {
-            if (!e.target.matches('.gdtp-time')) return;
-
             e.stopPropagation();
+
+            if (!e.target.matches('.gdtp-timepicker__time')) return;
 
             let elem = e.target;
-            const { currentViewDateTime, options } = this;
-
-            if (currentViewDateTime === undefined || currentViewDateTime === null) {
-                currentViewDateTime = this.now();
-            }
-
             if (elem.classList.contains('gdtp-disabled')) {
                 return false;
             }
 
-            currentViewDateTime.setHours(elem.dataset.hour);
-            currentViewDateTime.setMinutes(elem.dataset.minute);
+            const { currentViewDateTime } = this;
 
-            this.currentValue = currentViewDateTime;
+            currentViewDateTime.setHours(elem.dataset.hour, elem.dataset.minute);
+            this.currentValue = new Date(currentViewDateTime);
             this.$input.value = this.formatInputDate(this.currentValue);
 
-            if (options.onSelectTime && typeof options.onSelectTime === 'function') {
-                options.onSelectTime.call(this, currentViewDateTime, this.$input, e);
-            }
-
             this.triggerEvent(this.$datetimePicker, 'dt.change');
-            this.triggerEvent(this.$datetimePicker, 'dt.changedatetime');
+            this.triggerEvent(this.$input, 'change');
 
-            if (options.closeOnTimeSelect === true) {
-                this.triggerEvent(this.$datetimePicker, 'dt.close');
-            }
+            this.close();
         });
-    }
-
-    bindCalendarEvents() {
-        /*---------- click chọn ngày ---------- */
-
-        this.$calendar.addEventListener('click', (e) => {
-            const elem = e.target.closest('.gdtp-date');
-            if (!elem || !elem.matches('.gdtp-date')) return;
-
-            e.stopPropagation();
-
-            const { currentViewDateTime, options } = this;
-
-            if (currentViewDateTime === undefined || currentViewDateTime === null) {
-                currentViewDateTime = this.now();
-            }
-
-            if (elem.classList.contains('gdtp-disabled')) {
-                return false;
-            }
-
-            currentViewDateTime.setDate(1);
-            currentViewDateTime.setFullYear(elem.dataset.year);
-            currentViewDateTime.setMonth(elem.dataset.month);
-            currentViewDateTime.setDate(elem.dataset.date);
-
-            this.currentValue = this.currentViewDateTime;
-            this.$input.value = this.formatInputDate(this.currentValue);
-
-            if (options.onSelectDate &&	typeof options.onSelectDate === 'function') {
-                options.onSelectDate.call(this, currentViewDateTime, this.$input, e);
-            }
-
-            this.hideEl(this.$monthSelect);
-            this.hideEl(this.$yearSelect);
-            this.triggerEvent(this.$datetimePicker, 'dt.change');
-            this.triggerEvent(this.$datetimePicker, 'dt.changedatetime');
-
-            // nếu không có timepicker thì luôn đóng khi chọn ngày
-            if (options.closeOnDateSelect === true  || !options.timepicker) {
-                this.triggerEvent(this.$datetimePicker, 'dt.close');
-            }
-        });
-    }
-
-    bindDocumentEvents() {
-        $(options.ownerDocument)
-            .off('keydown.xdsoftctrl keyup.xdsoftctrl')
-            .off('keydown.xdsoftcmd keyup.xdsoftcmd')
-			.on('keydown.xdsoftctrl', function (e) {
-				if (e.keyCode === CTRLKEY) {
-					ctrlDown = true;
-                }
-			})
-			.on('keyup.xdsoftctrl', function (e) {
-				if (e.keyCode === CTRLKEY) {
-					ctrlDown = false;
-                }
-            })
-            .on('keydown.xdsoftcmd', function (e) {
-                if (e.keyCode === CMDKEY) {
-                    cmdDown = true;
-                }
-			})
-			.on('keyup.xdsoftcmd', function (e) {
-                if (e.keyCode === CMDKEY) {
-                    cmdDown = false;
-                }
-			});
     }
 
     buildHtml() {
         this.buildMonthYearPicker();
         this.buildCalendar();
-        this.buildTimePicker();
+        if (this.options.timepicker) {
+            this.buildTimePicker();
+        }
     }
 
     buildMonthYearPicker() {
-        const { options, i18n, globalLocale, currentViewDateTime } = this;
+        const { options, currentViewDateTime } = this;
+        const month = currentViewDateTime.getMonth();
+        const year = currentViewDateTime.getFullYear();
 
         /** Month & Year label */
-        this.$monthPicker.querySelector('.gdtp-month span').innerHTML = i18n[globalLocale].months[currentViewDateTime.getMonth()];
-        this.$monthPicker.querySelector('.gdtp-year span').innerHTML = currentViewDateTime.getFullYear();
+        this.$monthPicker.querySelector('.gdtp-monthpicker__label.is-month').innerHTML = this.getMonthName(month);
+        this.$monthPicker.querySelector('.gdtp-monthpicker__label.is-year').innerHTML = year;
 
         /** Month & Year select options */
         let opt = '';
 
         for (let i = parseInt(options.yearStart, 10); i <= parseInt(options.yearEnd, 10); i += 1) {
-            opt += '<div class="gdtp-option ' + (currentViewDateTime.getFullYear() === i ? 'gdtp-current' : '') + '" data-value="' + i + '">' + i + '</div>';
+            opt += `<div class="gdtp-monthpicker__option ${year === i ? 'is-current' : ''}" data-value="${i}">${i}</div>`;
         }
-        this.$yearSelect.firstChild.innerHTML = opt;
+        this.$yearSelect.innerHTML = opt;
 
         opt = '';
         for (let i = 0; i <= 11; i += 1) {
-            opt += '<div class="gdtp-option ' + (currentViewDateTime.getMonth() === i ? 'gdtp-current' : '') + '" data-value="' + i + '">' + i18n[globalLocale].months[i] + '</div>';
+            opt += `<div class="gdtp-monthpicker__option ${month === i ? 'is-current' : ''}" data-value="${i}">${this.getMonthName(i)}</div>`;
         }
-        this.$monthSelect.firstChild.innerHTML = opt;
+        this.$monthSelect.innerHTML = opt;
     }
 
     buildCalendar() {
-        const { i18n, globalLocale, options, currentViewDateTime } = this;
+        const { options, currentViewDateTime, currentValue } = this;
 
-        let header = '<div class="gdtp-weekdays">';
+        let header = '<div class="gdtp-calendar__weekdays">';
         for (let j = 0; j < 7; j += 1) {
-            header += '<div class="gdtp-weekday">' + i18n[globalLocale].dayOfWeekShort[(j + options.dayOfWeekStart) % 7] + '</div>';
+            header += `<div class="gdtp-calendar__weekday">${this.getDayShortName((j + options.dayOfWeekStart) % 7)}</div>`;
         }
         header += '</div>';
 
+        const year = currentViewDateTime.getFullYear();
+        const month = currentViewDateTime.getMonth();
         // ngày đầu tiên trong tháng current view
-        let currentDate = new Date(currentViewDateTime.getFullYear(), currentViewDateTime.getMonth(), 1, 12, 0, 0);
+        let currentDate = new Date(year, month, 1);
 
         // loop back về ngày bắt đầu trong tuần đó, có thể là những ngày cuối của tháng trước
         while (currentDate.getDay() !== options.dayOfWeekStart) {
             currentDate.setDate(currentDate.getDate() - 1);
         }
 
-        let i = 0;
         let daysInMonth = this.countDaysInMonth(currentViewDateTime);
         let maxDate = this.parseDate(options.maxDate);
         let minDate = this.parseDate(options.minDate);
-        let today = this.now();
-        let hDate;
-        let customDateSettings;
-        let calendar = '<div class="gdtp-days">';
+        let today = new Date();
 
+        let calendar = '<div class="gdtp-calendar__dates">';
+
+        let i = 0;
         while (
             i < daysInMonth // in ngày của tháng trước nếu có
             || currentDate.getDay() !== options.dayOfWeekStart // in thêm ngày của tháng sau khi row trong tuần còn chỗ
-            || currentViewDateTime.getMonth() === currentDate.getMonth()
+            || currentDate.getMonth() === month // in ngày của tháng hiện tại
         ) {
             i += 1;
 
-            let classes = [];
+            let classes = ['gdtp-calendar__date'];
             let day = currentDate.getDay();
             let d = currentDate.getDate();
             let y = currentDate.getFullYear();
             let m = currentDate.getMonth();
-            let description = '';
 
-            classes.push('gdtp-date');
-
-            if (options.beforeShowDay && typeof options.beforeShowDay.call === 'function') {
-                customDateSettings = options.beforeShowDay.call(this, currentDate);
-            } else {
-                customDateSettings = null;
+            if ((maxDate && currentDate > maxDate) || (minDate && currentDate < minDate)) {
+                classes.push('is-disabled');
             }
 
-            if (options.allowDateRe && Object.prototype.toString.call(options.allowDateRe) === "[object RegExp]") {
-                if (!options.allowDateRe.test(this.formatDate(currentDate))) {
-                    classes.push('gdtp-disabled');
-                }
+            if (! this.isDateAllowed(currentDate)) {
+                classes.push('is-disabled');
             }
 
-            if (options.allowDates.length > 0 && options.allowDates.indexOf(this.formatDate(currentDate)) === -1) {
-                classes.push('gdtp-disabled');
-            }
-
-            if (
-                (maxDate && currentDate > maxDate)
-                || (minDate && currentDate < minDate)
-                || (customDateSettings && customDateSettings[0] === false)
-            ) {
-                classes.push('gdtp-disabled');
-            }
-
-            if (options.disabledDates.indexOf(this.formatDate(currentDate)) !== -1) {
-                classes.push('gdtp-disabled');
-            }
-
-            if (options.disabledWeekDays.indexOf(day) !== -1) {
-                classes.push('gdtp-disabled');
+            if (this.isDateDisabled(currentDate)) {
+                classes.push('is-disabled');
             }
 
             if (this.$input.matches('[disabled]')) {
-                classes.push('gdtp-disabled');
-            }
-
-            if (customDateSettings && customDateSettings[1] !== "") {
-                classes.push(customDateSettings[1]);
+                classes.push('is-disabled');
             }
 
             if (currentViewDateTime.getMonth() !== m) {
-                classes.push('gdtp-other-month');
+                classes.push('is-other-month');
             }
 
-            if (this.formatDate(currentViewDateTime) === this.formatDate(currentDate)) {
-                classes.push('gdtp-current');
+            if (this.isSameDate(currentDate, currentValue)) {
+                classes.push('is-current');
             }
 
-            if (this.formatDate(today) === this.formatDate(currentDate)) {
-                classes.push('gdtp-today');
+            if (this.isSameDate(today, currentDate)) {
+                classes.push('is-today');
             }
 
-            if (day === 0 || day === 6) {
-                classes.push('gdtp-weekend');
+            if (this.isWeekend(currentDate)) {
+                classes.push('is-weekend');
             }
 
-            if (options.highlightedDates[this.formatDate(currentDate)] !== undefined) {
-                hDate = options.highlightedDates[this.formatDate(currentDate)];
-                classes.push(hDate.style === undefined ? 'gdtp-highlighted' : hDate.style);
-                description = hDate.desc === undefined ? '' : hDate.desc;
-            }
-
-            calendar += `<div data-date="${d}" data-month="${m}" data-year="${y}" data-day="${day}" class="${classes.join(' ')}" title="${description}">${d}</div>`;
+            calendar += `<div data-date="${d}" data-month="${m}" data-year="${y}" data-day="${day}" class="${this.arrayUnique(classes).join(' ')}"><span>${d}</span></div>`;
 
             currentDate.setDate(d + 1);
         }
 
         calendar += '</div>';
         this.$calendar.innerHTML = header + calendar;
+    }
+
+    isDateAllowed(date) {
+        const { allowedDates } = this.options;
+        if (allowedDates.length === 0) {
+            return true;
+        }
+
+        return allowedDates.indexOf(this.formatDateOnly(date)) !== -1;
+    }
+
+    isDateDisabled(date) {
+        const { disabledDates, disabledWeekDays } = this.options;
+        if (disabledDates.length === 0 && disabledWeekDays.length === 0) {
+            return false;
+        }
+
+        return disabledDates.includes(this.formatDateOnly(date)) || disabledWeekDays.includes(date.getDay());
     }
 
     buildTimePicker() {
@@ -714,379 +608,383 @@ class GDatetimepicker
             extraOpts = options.beforeShowTime.call(this, currentViewDateTime);
         }
 
-        let minTime = extraOpts?.minTime || options.minTime;
-        let maxTime = extraOpts?.maxTime || options.maxTime;
-        let allowTimes = extraOpts?.allowTimes || options.allowTimes;
-        let disabledTimes = extraOpts?.disabledTimes || options.disabledTimes;
+        if (extraOpts && this.isPlainObject(extraOpts)) {
+            options.minTime = extraOpts.minTime || options.minTime;
+            options.maxTime = extraOpts.maxTime || options.maxTime;
+            options.allowedTimes = extraOpts.allowedTimes || options.allowedTimes;
+            options.disabledTimes = extraOpts.disabledTimes || options.disabledTimes;
+        }
 
         let minTimeMinutesOfDay = 0;
-        if (minTime) {
-            let t = this.parseTime(minTime);
+        if (options.minTime) {
+            let t = this.parseTime(options.minTime);
             minTimeMinutesOfDay = 60 * t.getHours() + t.getMinutes();
         }
 
         let maxTimeMinutesOfDay = 24 * 60;
-        if (maxTime) {
-            let t = this.parseTime(maxTime);
+        if (options.maxTime) {
+            let t = this.parseTime(options.maxTime);
             maxTimeMinutesOfDay = 60 * t.getHours() + t.getMinutes();
         }
 
-        let roundCurrentViewMinutesByStep = Math[options.roundTime](currentViewDateTime.getMinutes() / options.step) * options.step;
+        let roundCurrentViewMinutesByStep = Math.ceil(currentViewDateTime.getMinutes() / options.step) * options.step;
         let currentViewHours = currentViewDateTime.getHours();
-        let timeHtml = '';
-
         if (roundCurrentViewMinutesByStep === 60) {
             currentViewHours += 1;
             roundCurrentViewMinutesByStep = 0;
         }
 
+        let timeHtml = '';
         for (let i = 0; i < 24; i++) {
             for (let j = 0; j < 60; j += options.step) {
                 let currentStepMinutesOfDay = i * 60 + j;
-                let classes = ['gdtp-time'];
+                let classes = ['gdtp-timepicker__time'];
 
                 if (currentStepMinutesOfDay > maxTimeMinutesOfDay || currentStepMinutesOfDay < minTimeMinutesOfDay) {
                     continue;
                 }
 
-                let h = (i < 10 ? '0' : '') + i;
-                let m = (j < 10 ? '0' : '') + j;
+                let h = this.padZero(i, 2);
+                let m = this.padZero(j, 2);
                 let strTime = `${h}:${m}`;
 
-                if (allowTimes.length > 0 && !allowTimes.includes(strTime)) {
-                    classes.push('gdtp-disabled');
+                if (!this.isTimeAllowed(strTime)) {
+                    classes.push('is-disabled');
                 }
 
-                if (disabledTimes.length > 0 && disabledTimes.includes(strTime)) {
-                    classes.push('gdtp-disabled');
+                if (this.isTimeDisabled(strTime)) {
+                    classes.push('is-disabled');
                 }
 
                 if (currentViewHours === i && roundCurrentViewMinutesByStep === j) {
-                    classes.push('gdtp-current');
+                    classes.push('is-current');
                 }
 
-                timeHtml += `<div class="${classes.join(' ')}" data-hour="${i}" data-minute="${j}">${h}:${m}</div>`;
+                timeHtml += `<div class="${this.arrayUnique(classes).join(' ')}" data-hour="${i}" data-minute="${j}">${h}:${m}</div>`;
             }
         }
 
         this.$timebox.innerHTML = timeHtml;
     }
 
-    normalizeOptions(opts) {
-        if (!this.isPlainObject(opts)) return {};
-
-        if (opts.allowDateRe && Object.prototype.toString.call(opts.allowDateRe) === "[object String]") {
-            opts.allowDateRe = new RegExp(opts.allowDateRe);
+    isTimeAllowed(time) {
+        const { allowedTimes } = this.options;
+        if (allowedTimes.length === 0) {
+            return true;
         }
 
-        opts.allowTimes = this.normalizeArray(opts.allowTimes);
-        opts.disabledTimes = this.normalizeArray(opts.disabledTimes);
-        opts.allowDates = this.normalizeArray(opts.allowDates);
-        opts.disabledDates = this.normalizeArray(opts.disabledDates);
-        opts.disabledWeekDays = this.normalizeArray(opts.disabledWeekDays);
-        opts.highlightedDates = this.parseHighlightedDates(opts.highlightedDates, opts.highlightedPeriods);
-
-        opts.minDate = this.isValidDate(opts.minDate) ? opts.minDate : '';
-        opts.maxDate = this.isValidDate(opts.maxDate) ? opts.maxDate : '';
-        opts.minTime = this.isValidTime(opts.minTime) ? opts.minTime : '';
-        opts.maxTime = this.isValidTime(opts.maxTime) ? opts.maxTime : '';
-
-        opts.initValue = this.isValidDate(opts.initValue) ? opts.initValue : '';
-
-        if (isNaN(opts.dayOfWeekStart)) {
-            opts.dayOfWeekStart = 0;
-        } else {
-            opts.dayOfWeekStart = parseInt(opts.dayOfWeekStart, 10) % 7;
-        }
-        opts.dayOfWeekStartPrev = (opts.dayOfWeekStart === 0) ? 6 : opts.dayOfWeekStart - 1;
-
-        return opts;
+        return allowedTimes.includes(time);
     }
 
-    parseHighlightedDates(highlightedDates, highlightedPeriods) {
-        const result = {};
-
-        if (highlightedDates && Array.isArray(highlightedDates) && highlightedDates.length) {
-            highlightedDates.forEach((value) => {
-                let splitData = value.split(',').map((x) => x.trim());
-                let newDate = new GHighlightedDate(this.parseDate(splitData[0]), splitData[1], splitData[2]);
-                let dateKey = this.formatDate(newDate.date);
-
-                if (result[dateKey] !== undefined) {
-                    let desc = result[dateKey].desc;
-                    if (desc?.length && newDate.desc?.length) {
-                        result[dateKey].desc = desc + "\n" + newDate.desc;
-                    }
-                } else {
-                    result[dateKey] = newDate;
-                }
-            });
+    isTimeDisabled(time) {
+        const { disabledTimes } = this.options;
+        if (disabledTimes.length === 0) {
+            return false;
         }
 
-        if (highlightedPeriods && Array.isArray(highlightedPeriods) && highlightedPeriods.length) {
-            highlightedPeriods.forEach((value) => {
-                let dateStart;
-                let dateEnd;
-                let desc;
-                let style;
-                let newDate;
-                let dateKey;
-                let existedDesc;
-
-                if (Array.isArray(value)) {
-                    dateStart = value[0];
-                    dateEnd = value[1];
-                    desc = value[2];
-                    style = value[3];
-                } else {
-                    let splitData = value.split(',').map((x) => x.trim());
-                    dateStart = this.parseDate(splitData[0]);
-                    dateEnd = this.parseDate(splitData[1]);
-                    desc = splitData[2];
-                    style = splitData[3];
-                }
-
-                while (dateStart <= dateEnd) {
-                    newDate = new GHighlightedDate(dateStart, desc, style);
-                    dateKey = this.formatDate(dateStart);
-
-                    if (result[dateKey] !== undefined) {
-                        existedDesc = result[dateKey].desc;
-                        if (existedDesc && existedDesc.length && newDate.desc && newDate.desc.length) {
-                            result[dateKey].desc = existedDesc + "\n" + newDate.desc;
-                        }
-                    } else {
-                        result[dateKey] = newDate;
-                    }
-
-                    dateStart.setDate(dateStart.getDate() + 1);
-                }
-            });
-        }
-
-        return result;
+        return disabledTimes.includes(time);
     }
 
-    setPosition = () => {
-        let dateInputElem = this.$input;
-        let dateInputOffset = this.getOffset(dateInputElem);
-
-        let verticalAnchorEdge = 'top';
-        let verticalPosition = (dateInputOffset.top + dateInputElem.offsetHeight) - 1;
-        let left = dateInputOffset.left;
-        let position = "absolute";
-
-        let windowWidth = window.innerWidth;
-        let windowHeight = window.innerHeight;
-        let windowScrollTop = window.scrollY;
-
-        const { options } = this;
-
-        if ((document.documentElement.clientWidth - dateInputOffset.left) < this.$datetimePicker.offsetWidth) {
-            var diff = this.$datetimePicker.offsetWidth - dateInputElem.offsetWidth;
-            left = left - diff;
-        }
-
-        if (options.fixed) {
-            verticalPosition -= windowScrollTop;
-            left -= window.scrollX;
-            position = "fixed";
-        } else {
-            let dateInputHasFixedAncestor = false;
-
-            this.forEachAncestorOf(dateInputElem, (ancestorNode) => {
-                if (ancestorNode === null) {
-                    return false;
-                }
-
-                if (window.getComputedStyle(ancestorNode).getPropertyValue('position') === 'fixed') {
-                    dateInputHasFixedAncestor = true;
-                    return false;
-                }
-            });
-
-            if (dateInputHasFixedAncestor && !options.insideParent) {
-                position = 'fixed';
-
-                //If the picker won't fit entirely within the viewport then display it above the date input.
-                if (verticalPosition + this.$datetimePicker.offsetHeight > windowHeight + windowScrollTop) {
-                    verticalAnchorEdge = 'bottom';
-                    verticalPosition = (windowHeight + windowScrollTop) - dateInputOffset.top;
-                } else {
-                    verticalPosition -= windowScrollTop;
-                }
-            } else {
-                if (verticalPosition + this.$datetimePicker.offsetHeight > windowHeight + windowScrollTop) {
-                    verticalPosition = dateInputOffset.top - this.$datetimePicker.offsetHeight + 1;
-                }
-            }
-
-            if (verticalPosition < 0) {
-                verticalPosition = 0;
-            }
-
-            if (left + dateInputElem.offsetWidth > windowWidth) {
-                left = windowWidth - dateInputElem.offsetWidth;
-            }
-        }
-
-        let datetimepickerElem = this.$datetimePicker;
-
-        this.forEachAncestorOf(datetimepickerElem, (ancestorNode) => {
-            var ancestorNodePosition;
-
-            ancestorNodePosition = window.getComputedStyle(ancestorNode).getPropertyValue('position');
-
-            if (ancestorNodePosition === 'relative' && windowWidth >= ancestorNode.offsetWidth) {
-                left = left - ((windowWidth - ancestorNode.offsetWidth) / 2);
-                return false;
-            }
-        });
-
-        let datetimepickerCss = {
-            position: position,
-            left: options.insideParent ? dateInputElem.offsetLeft + 'px' : left + 'px',
-            top: '',  //Initialize to prevent previous values interfering with new ones.
-            bottom: ''  //Initialize to prevent previous values interfering with new ones.
-        };
-
-        if (options.insideParent) {
-            datetimepickerCss[verticalAnchorEdge] = dateInputElem.offsetTop + dateInputElem.offsetHeight + 'px';
-        } else {
-            datetimepickerCss[verticalAnchorEdge] = verticalPosition + 'px';
-        }
-
-        this.setCss(this.$datetimePicker, datetimepickerCss);
+    goToMonth(month, year) {
+        const  { currentViewDateTime } = this;
+        const newMonth = new Date(year, month + 1, 0); // ngày cuối của tháng thứ m
+        const newDate = Math.min(currentViewDateTime.getDate(), newMonth.getDate());
+        currentViewDateTime.setFullYear(year, month, newDate);
+        this.triggerEvent(this.$datetimePicker, 'dt.changeView');
     }
 
-    nextMonth() {
-        const { currentViewDateTime } = this;
+    goToNextMonth() {
+        let m = this.currentViewDateTime.getMonth();
+        let y = this.currentViewDateTime.getFullYear();
 
-        let month = currentViewDateTime.getMonth() + 1;
-        let year = currentViewDateTime.getFullYear();
-
-        if (month === 12) {
-            currentViewDateTime.setFullYear(currentViewDateTime.getFullYear() + 1);
-            month = 0;
-        }
-
-        currentViewDateTime.setDate(
-            Math.min(
-                new Date(currentViewDateTime.getFullYear(), month + 1, 0).getDate(),
-                currentViewDateTime.getDate()
-            )
-        );
-        currentViewDateTime.setMonth(month);
-
-        if (this.options.onChangeMonth && typeof this.options.onChangeMonth === 'function') {
-            this.options.onChangeMonth.call(this, currentViewDateTime, this.$datetimePicker.dataset.input);
-        }
-
-        if (year !== currentViewDateTime.getFullYear() && typeof this.options.onChangeYear === 'function') {
-            this.options.onChangeYear.call(this, currentViewDateTime, this.$datetimePicker.dataset.input);
-        }
-
-        this.triggerEvent(this.$datetimePicker, 'dt.change');
-        return month;
+        y = m === 11 ? y + 1 : y;
+        m = m === 11 ? 0 : m + 1;
+        this.goToMonth(m, y);
     }
 
-    prevMonth() {
-        let month = this.currentViewDateTime.getMonth() - 1;
-        let year = this.currentViewDateTime.getFullYear();
+    goToPrevMonth() {
+        let m = this.currentViewDateTime.getMonth();
+        let y = this.currentViewDateTime.getFullYear();
 
-        if (month === -1) {
-            this.currentViewDateTime.setFullYear(this.currentViewDateTime.getFullYear() - 1);
-            month = 11;
-        }
+        y = m === 0 ? y - 1 : y;
+        m = m === 0 ? 11 : m - 1;
+        this.goToMonth(m, y);
+    }
 
-        this.currentViewDateTime.setDate(
-            Math.min(
-                new Date(this.currentViewDateTime.getFullYear(), month + 1, 0).getDate(),
-                this.currentViewDateTime.getDate()
-            )
-        );
+    getText(str) {
+        return this.i18n[this.globalLocale][str] || str;
+    }
 
-        this.currentViewDateTime.setMonth(month);
+    getMonthName(month) {
+        return this.i18n[this.globalLocale].months[month];
+    }
 
-        if (this.options.onChangeMonth && typeof this.options.onChangeMonth === 'function') {
-            this.options.onChangeMonth.call(this, this.currentViewDateTime, this.$datetimePicker.dataset.input);
-        }
-
-        if (year !== this.currentViewDateTime.getFullYear() && typeof this.options.onChangeYear === 'function') {
-            this.options.onChangeYear.call(this, this.currentViewDateTime, this.$datetimePicker.dataset.input);
-        }
-
-        this.triggerEvent(this.$datetimePicker, 'dt.change');
-        return month;
+    getDayShortName(day) {
+        return this.i18n[this.globalLocale].dayOfWeekShort[day];
     }
 
     /*=============================================
     =            Datetime utils            =
     =============================================*/
-    isValidDate(d) {
-        return dayjs(d).isValid();
+    /**
+     * Kiểm tra chuỗi ngày tháng hoặc đối tượng Date có hợp lệ không
+     * @param {string|Date} date
+     * @param {string} format
+     * @returns {boolean}
+     */
+    isValidDate(date, format = '') {
+        const newDate = date instanceof Date ? date : this.parseDate(date, format);
+        return !isNaN(newDate);
     }
 
-    isValidTime(t) {
-        if (!t) {
+    /**
+     * Kiểm tra chuỗi giờ phút có hợp lệ không
+     * @param {string} time
+     * @returns {boolean}
+     */
+    isValidTime(time) {
+        if (!time) {
             return false;
         }
 
-        let a = t.split(":");
+        let a = time.split(":");
 
         if (a.length != 2) {
            return false;
         }
 
-        if (isNaN(a[0]) || isNaN(a[1])) {
+        let h = parseInt(a[0], 10);
+        let m = parseInt(a[1], 10);
+
+        if (isNaN(h) || isNaN(m)) {
             return false;
         }
 
-        if (a[0] >= 24 || a[1] >= 60) {
+        if (h >= 24 || m >= 60) {
             return false;
         }
 
         return true;
     }
 
-    isValidInputDate(d, format = '') {
-        let fm = format || this.options.format;
-        return dayjs(d, fm).isValid();
-    }
-
     isSameDate(d1, d2) {
-        return d1.getTime() === d2.getTime();
+        if (!d1 || !d2) return false;
+
+        return d1.getFullYear() === d2.getFullYear()
+            && d1.getMonth() === d2.getMonth()
+            && d1.getDate() === d2.getDate();
     }
 
-    parseDate(d) {
-        let date = dayjs(d, [this.datetimeFormat, this.dateFormat]);
-        return date.isValid() ? date.toDate() : null;
+    isWeekend(date) {
+        return date.getDay() === 0 || date.getDay() === 6;
     }
 
-    parseTime(d) {
-        let date = dayjs(d, this.timeFormat);
-        return date.isValid() ? date.toDate() : null;
+    /**
+     * Chuyển đổi chuỗi thành đối tượng Date theo định dạng cho trước
+     * @param {string} date
+     * @param {string} format
+     * @returns {Date|null}
+     */
+    parseDate(str, format = '') {
+        if (str === null) return null;
+        if (str === undefined) return null;
+        if (str instanceof Date) return new Date(str);
+
+        if (! format) {
+            format = this.options.timepicker && this.strHasTime(str)
+                ? this.datetimeFormat
+                : this.dateFormat;
+        }
+
+        const formatParts = format.split(/[-/ :]/);
+        const dateParts = str.split(/[-/ :]/);
+
+        let year, month, day, hours = 0, minutes = 0;
+
+        formatParts.forEach((part, index) => {
+            switch (part) {
+                case 'YYYY':
+                    year = parseInt(dateParts[index], 10);
+                    break;
+                case 'MM':
+                    month = parseInt(dateParts[index], 10) - 1;
+                    break;
+                case 'DD':
+                    day = parseInt(dateParts[index], 10);
+                    break;
+                case 'HH':
+                    hours = parseInt(dateParts[index], 10);
+                    break;
+                case 'mm':
+                    minutes = parseInt(dateParts[index], 10);
+                    break;
+            }
+        });
+
+        const newDate = new Date(year, month, day, hours, minutes);
+        if (newDate.getFullYear() !== year || newDate.getMonth() !== month || newDate.getDate() !== day ||
+            newDate.getHours() !== hours || newDate.getMinutes() !== minutes) {
+            return null;
+        }
+
+        return newDate;
+    }
+
+    /**
+     * Chuyển đổi chuỗi dạng giờ phút HH:mm thành đối tượng Date
+     * @param {string} str
+     * @returns {Date}
+     */
+    parseTime(str) {
+        if (!this.isValidTime(str)) return null;
+
+        let a = str.split(":");
+
+        const d = new Date();
+        d.setHours(parseInt(a[0], 10), parseInt(a[1], 10));
+
+        return d;
     }
 
     parseInputDate(d) {
-        let date = dayjs(d, this.options.format);
-        return date.isValid() ? date.toDate() : null;
+        return this.parseDate(d, this.options.format);
     }
 
-    formatInputDate(d) {
-        return dayjs(d).format(this.options.format);
+    /**
+     * Format date thành chuỗi theo định dạng cho trước
+     * @param {Date} date
+     * @param {string} format
+     * @returns {string}
+     */
+    formatDate(date, format = '') {
+        if (!this.isValidDate(date)) return '';
+
+        if (! format) {
+            format = this.options.timepicker && this.strHasTime(date)
+                ? this.datetimeFormat
+                : this.dateFormat;
+        }
+        const year = date.getFullYear();
+        const month = date.getMonth() + 1;
+        const dateValue = date.getDate();
+        const hour = date.getHours();
+        const minute = date.getMinutes();
+        const seconds = date.getSeconds();
+
+        const matches = (match) => {
+            switch (match) {
+                case 'YY':
+                    return String(year).slice(-2);
+                case 'YYYY':
+                    return this.padZero(year, 4);
+                case 'M':
+                    return String(month);
+                case 'MM':
+                    return this.padZero(month, 2);
+                case 'D':
+                    return String(dateValue);
+                case 'DD':
+                    return this.padZero(dateValue, 2);
+                case 'H':
+                    return String(hour);
+                case 'HH':
+                    return this.padZero(hour, 2);
+                case 'm':
+                    return String(minute);
+                case 'mm':
+                    return this.padZero(minute, 2);
+                case 's':
+                    return String(seconds);
+                case 'ss':
+                    return this.padZero(seconds, 2);
+                default:
+                    break;
+            }
+            return null;
+        };
+
+        const regexFormat = /\[([^\]]+)]|Y{1,4}|M{1,4}|D{1,2}|d{1,4}|H{1,2}|h{1,2}|a|A|m{1,2}|s{1,2}|Z{1,2}|SSS/g;
+        return format.replace(regexFormat, (match, $1) => $1 || matches(match));
     }
 
-    formatDate(d) {
-        return dayjs(d).format(this.dateFormat);
+    /**
+     * Format date thành chuỗi dùng hiển thị trên input
+     * @param {Date} date
+     * @returns {string}
+     */
+    formatInputDate(date) {
+        return this.formatDate(date, this.options.format);
     }
 
-    now() {
-        return new Date();
-    }
+    /**
+     * Format date chỉ gồm ngày tháng năm, dạng YYYY/MM/DD
+     * @param {Date} date
+     * @returns {string}
+    */
+    formatDateOnly(date) {
+        return this.formatDate(date, 'YYYY/MM/DD');
+    };
+
+    /**
+     * Format date chỉ gồm giờ phút, dạng HH:mm
+     * @param {Date} date
+     * @returns {string}
+    */
+    formatTimeOnly(date) {
+        return this.formatDate(date, 'HH:mm');
+    };
 
     countDaysInMonth(date) {
-        return dayjs(date).daysInMonth();
+        return new Date(date.getFullYear(), date.getMonth() + 1, 0).getDate();
+    }
+
+    roundTimeByStep(time, step) {
+        let hours = time.getHours();
+        let minutes = time.getMinutes();
+        let roundedMinutes = Math.ceil(minutes / step) * step;
+
+        if (roundedMinutes === 60) {
+            hours += 1;
+            roundedMinutes = 0;
+        }
+
+        time.setHours(hours, roundedMinutes, 0, 0);
+    }
+
+    /**
+     * Copies date
+     * @param {Date} date
+     * @param {Boolean} [keepTime] - should keep the time in a new date or not
+     * @return {Date}
+     */
+    copyDate(date, keepTime = true) {
+        let newDate = new Date(date.getTime());
+
+        if (typeof keepTime === 'boolean' && !keepTime) {
+            this.resetTime(newDate);
+        }
+
+        return newDate;
+    }
+
+    /**
+     * Reset time to zero
+     * @param {Date} date
+     * @returns {Date}
+     */
+    resetTime(date) {
+        date.setHours(0, 0, 0, 0);
+        return date;
+    }
+
+    /**
+     * Kiểm tra chuỗi ngày tháng có phần time hay không
+     * @param {string} dateTimeString
+     * @returns {boolean}
+     */
+    strHasTime(dateTimeString) {
+        const timeRegex = /\b([01]\d|2[0-3]):([0-5]\d)(:([0-5]\d))?\b/;
+        return timeRegex.test(dateTimeString);
     }
 
     /*=============================================
@@ -1097,21 +995,25 @@ class GDatetimepicker
         return value && Array.isArray(value) ? value : [];
     }
 
+    arrayUnique(arr) {
+        return [...new Set(arr)];
+    }
+
     isPlainObject(obj) {
         return Object.prototype.toString.call(obj) === '[object Object]';
     }
 
-    getEl(el, context = document) {
-        return typeof el === 'string'
-            ? context['querySelector'](el)
-            : el;
+    /**
+     * Thêm số 0 vào đầu chuỗi số cho đủ độ dài length
+     * @param {number} number
+     * @param {number} length Độ dài chuỗi sau khi thêm số 0
+     * @returns {string}
+     */
+    padZero(number, length) {
+        return String(number).padStart(length, '0');
     }
 
-    getElAll(el, context = document) {
-        return typeof el === 'string'
-            ? context['querySelectorAll'](el)
-            : el;
-    }
+    /*---------- DOM Utils ---------- */
 
     createElement(tagName = 'div', className = '', innerHtml = '', id = '', attrs = {}) {
         let $element = document.createElement(tagName);
@@ -1147,36 +1049,55 @@ class GDatetimepicker
     }
 
     isVisible(el) {
-        return !!( el.offsetWidth || el.offsetHeight || el.getClientRects().length );
+        return !!(el.offsetWidth || el.offsetHeight || el.getClientRects().length);
     }
 
     triggerEvent(el, eventType, detail) {
         el.dispatchEvent(new CustomEvent(eventType, { detail }));
     }
 
+    /** Tính offset của element so với page */
     getOffset(element) {
-        if (!element.getClientRects().length){
-            return { top: 0, left: 0 };
-        }
-
         let rect = element.getBoundingClientRect();
         let win = element.ownerDocument.defaultView;
 
         return {
-            top: rect.top + win.pageYOffset,
-            left: rect.left + win.pageXOffset
+            top: rect.top + win.scrollY,
+            right: rect.right + win.scrollX,
+            bottom: rect.bottom + win.scrollY,
+            left: rect.left + win.scrollX,
         };
     }
 
-    forEachAncestorOf(node, callback) {
-        do {
-            node = node.parentNode;
+    setPosition = () => {
+        let pageOffsetBottom = window.innerHeight + window.scrollY;
+        let pageWidth = document.body.clientWidth;
+        let dtpHeight = this.$datetimePicker.offsetHeight;
+        let dtpWidth = this.$datetimePicker.offsetWidth;
+        let inputOffset = this.getOffset(this.$input);
 
-            if (!node || callback(node) === false) {
-                break;
-            }
-        } while (node.nodeName !== 'HTML');
-    };
+        let position = "absolute";
+        let top = inputOffset.bottom + dtpHeight > pageOffsetBottom
+            ? Math.max(0, inputOffset.top - dtpHeight)
+            : inputOffset.bottom;
+        let left = inputOffset.left;
+
+        /** không đủ chỗ theo chiều ngang của datetimepicker */
+        if (dtpWidth + left > pageWidth) {
+            left = inputOffset.right > pageWidth
+                ? pageWidth - dtpWidth
+                : Math.max(0, inputOffset.right - dtpWidth);
+        }
+
+        let datetimepickerCss = {
+            position: position,
+            left: left + 'px',
+            top: top + 'px',
+            bottom: ''  //Initialize to prevent previous values interfering with new ones.
+        };
+
+        this.setCss(this.$datetimePicker, datetimepickerCss);
+    }
 
     setCss(el, styles = {}) {
         for (let i in styles){
@@ -1184,18 +1105,4 @@ class GDatetimepicker
         }
     }
 
-    onClickOutside(element, callback) {
-        document.addEventListener('click', e => {
-            if (!element.contains(e.target)) callback();
-        });
-    };
-}
-
-class GHighlightedDate
-{
-    constructor(date, desc, style) {
-        this.date = date;
-        this.desc = desc;
-        this.style = style;
-    }
 }
