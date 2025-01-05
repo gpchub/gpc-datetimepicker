@@ -68,6 +68,8 @@ class GDatetimepicker
 		minTime: '08:00',
         /** @var {String} Giờ nhỏ nhất trong timepicker, format H:i */
 		maxTime: '18:00',
+        /** @var {Boolean} Ẩn các ngày không được phép chọn */
+        hideDisabledTimes: false,
 
         /** @var String Selector chứa datetime picker */
         parentSelector: 'body',
@@ -784,11 +786,10 @@ class GDatetimepicker
                 let strTime = `${h}:${m}`;
                 let time = this.parseTime(strTime);
 
-                if (!this.isTimeAllowed(time)) {
-                    classes.push('is-disabled');
-                }
-
-                if (this.isTimeDisabled(time)) {
+                if (!this.isTimeAllowed(time) || this.isTimeDisabled(time)) {
+                    if (this.options.hideDisabledTimes) {
+                        continue;
+                    }
                     classes.push('is-disabled');
                 }
 
