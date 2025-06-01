@@ -828,7 +828,7 @@ export default class GDatetimepicker
         return dateUtils.formatDate(date, this.options.format);
     }
 
-    _setPosition = () => {
+    _setPosition() {
         this.cleanupPopup = dom.setPosition(this.$datetimePicker, this.$input);
     }
 }
