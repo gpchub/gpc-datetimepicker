@@ -158,6 +158,7 @@
     text-decoration: none;
     font-weight: normal;
     cursor: pointer;
+    font-size: var(--gdtp-font-size);
 }
 
 .gdtp-monthpicker__option:hover {

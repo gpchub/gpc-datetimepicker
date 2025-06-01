@@ -247,16 +247,38 @@ export default class GDatetimepicker
     }
 
     _createMonthPicker() {
+        const { options, currentViewDateTime } = this;
+        const month = currentViewDateTime.getMonth();
+        const year = currentViewDateTime.getFullYear();
+
+        const monthName = (month) => this.i18n[this.globalLocale].months[month];
+
+        const populateOptions = (start, end, labelFunc = val => val) => {
+            const s = parseInt(start, 10);
+            const e = parseInt(end, 10);
+
+            return Array.from({ length: e - s + 1 }, (_, i) => {
+                const value = s + i;
+                return `<div class="gdtp-monthpicker__option" data-value="${value}">
+                            ${labelFunc(value)}
+                        </div>`;
+            }).join('');
+        };
+
+        /** Month & Year select options */
+        const yearOptions = populateOptions(options.yearStart, options.yearEnd);
+        const monthOptions = populateOptions(0, 11, monthName);
+
         return dom.createElement('header', 'gdtp-monthpicker', `
             <button type="button" class="gdtp-monthpicker__prev gdtp-button-icon gdtp-prev"></button>
             <button type="button" class="gdtp-monthpicker__today gdtp-button-icon"></button>
             <div class="gdtp-monthpicker__months">
-                <span class="gdtp-monthpicker__label is-month"></span>
-                <div class="gdtp-monthpicker__select is-month"></div>
+                <span class="gdtp-monthpicker__label is-month">${monthName(month)}</span>
+                <div class="gdtp-monthpicker__select is-month">${monthOptions}</div>
             </div>
             <div class="gdtp-monthpicker__years">
-                <span class="gdtp-monthpicker__label is-year"></span>
-                <div class="gdtp-monthpicker__select is-year"></div>
+                <span class="gdtp-monthpicker__label is-year">${year}</span>
+                <div class="gdtp-monthpicker__select is-year">${yearOptions}</div>
             </div>
             <button type="button" class="gdtp-monthpicker__next gdtp-button-icon gdtp-next"></button>
         `);
@@ -481,39 +503,31 @@ export default class GDatetimepicker
     }
 
     _buildHtml() {
-        this._buildMonthYearPicker();
+        this._updateMonthYearPicker();
         this._buildCalendar();
         if (this.options.timepicker) {
             this._buildTimePicker();
         }
     }
 
-    _buildMonthYearPicker() {
-        const { options, currentViewDateTime } = this;
+    _updateMonthYearPicker() {
+        const { currentViewDateTime } = this;
         const month = currentViewDateTime.getMonth();
         const year = currentViewDateTime.getFullYear();
 
         const monthName = (month) => this.i18n[this.globalLocale].months[month];
-
-        const populateOptions = (container, start, end, currentValue, labelFunc = val => val) => {
-            const s = parseInt(start, 10);
-            const e = parseInt(end, 10);
-
-            container.innerHTML = Array.from({ length: e - s + 1 }, (_, i) => {
-                const value = s + i;
-                return `<div class="gdtp-monthpicker__option ${value === currentValue ? 'is-current' : ''}" data-value="${value}">
-                            ${labelFunc(value)}
-                        </div>`;
-            }).join('');
-        };
+        const updateSelected = (select, value) => {
+            select.querySelector('.gdtp-monthpicker__option.is-current')?.classList.remove('is-current');
+            select.querySelector(`.gdtp-monthpicker__option[data-value="${value}"]`).classList.add('is-current');
+        }
 
         /** Month & Year label */
         this.$monthPicker.querySelector('.gdtp-monthpicker__label.is-month').innerHTML = monthName(month);
         this.$monthPicker.querySelector('.gdtp-monthpicker__label.is-year').innerHTML = year;
 
         /** Month & Year select options */
-        populateOptions(this.$yearSelect, options.yearStart, options.yearEnd, year);
-        populateOptions(this.$monthSelect, 0, 11, month, monthName);
+        updateSelected(this.$yearSelect, year);
+        updateSelected(this.$monthSelect, month);
     }
 
     _buildCalendar() {
