@@ -565,7 +565,7 @@ class GDatetimepicker
             if (!e.target.matches('.gdtp-timepicker__time')) return;
 
             let elem = e.target;
-            if (elem.classList.contains('gdtp-disabled')) {
+            if (elem.classList.contains('is-disabled')) {
                 return false;
             }
 
