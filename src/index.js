@@ -9,6 +9,8 @@ export default class GDatetimepicker
 		format: 'DD/MM/YYYY HH:mm',
         /** @var {String|null} Ngày ban đầu, format Y/m/d hoặc Y/m/d H:i (nếu có timepicker)  */
 		initValue: null,
+        /** @var {Boolean} Thêm input hidden để chứa value khi submit trong form */
+        altInput: true,
 
         /** @var {Number} Năm nhỏ nhất trong lịch */
 		yearStart: (new Date()).getFullYear() - 5,
@@ -160,7 +162,6 @@ export default class GDatetimepicker
         const init = this.options.initValue ? dateUtils.parseDate(this.options.initValue, this.valueFormat) : null;
         const fromInput = this.$input.value ? dateUtils.parseDate(this.$input.value, this.options.format) : null;
         this.currentValue = init || fromInput;
-        if (init) this.$input.value = this._formatInputDate(init);
     }
 
     _initCurrentViewDateTime() {
@@ -217,6 +218,17 @@ export default class GDatetimepicker
 
         this.$input.setAttribute('readonly', true);
 
+        if (options.altInput) {
+            this.$hiddenInput = this._createHiddenInput();
+            this.$hiddenInput.name = this.$input.name;
+            this.$input.name = '';
+            this.$input.insertAdjacentElement('beforebegin', this.$hiddenInput);
+        }
+
+        if (this.currentValue) {
+            this._updateInputValue();
+        }
+
         this.$datetimePicker = dom.createElement('div', 'gdtp-datetimepicker');
         this.$datePicker = dom.createElement('section', 'gdtp-datepicker active');
         this.$monthPicker = this._createMonthPicker();
@@ -244,6 +256,14 @@ export default class GDatetimepicker
         dom.hide(this.$monthSelect);
         dom.hide(this.$yearSelect);
         document.body.append(this.$datetimePicker);
+
+    }
+
+    _createHiddenInput() {
+        const input = dom.createElement('input', 'gdtp-hidden-input');
+        input.type = 'hidden';
+        input.value = this.getValueString();
+        return input;
     }
 
     _createMonthPicker() {
@@ -432,7 +452,7 @@ export default class GDatetimepicker
 
             currentViewDateTime.setFullYear(elem.dataset.year, elem.dataset.month, elem.dataset.date);
             this.currentValue = new Date(currentViewDateTime);
-            this.$input.value = this._formatInputDate(this.currentValue);
+            this._updateInputValue();
 
             this._closeMonthYearPicker();
             dom.triggerEvent(this.$datetimePicker, 'dt.change');
@@ -493,7 +513,10 @@ export default class GDatetimepicker
 
             currentViewDateTime.setHours(elem.dataset.hour, elem.dataset.minute);
             this.currentValue = new Date(currentViewDateTime);
-            this.$input.value = this._formatInputDate(this.currentValue);
+            this._updateInputValue();
+
+            this.$timebox.querySelector('.is-current').classList.remove('is-current');
+            elem.classList.add('is-current');
 
             dom.triggerEvent(this.$datetimePicker, 'dt.change');
             dom.triggerEvent(this.$input, 'change');
@@ -731,6 +754,13 @@ export default class GDatetimepicker
         return this.i18n[this.globalLocale][str] || str;
     }
 
+    _updateInputValue() {
+        this.$input.value = this._formatInputDate(this.currentValue);
+        if (this.options.altInput) {
+            this.$hiddenInput.value = dateUtils.formatDate(this.currentValue, this.valueFormat);
+        }
+    }
+
     /*=============================================
     =            Public methods            =
     =============================================*/
@@ -740,11 +770,7 @@ export default class GDatetimepicker
     }
 
     getValueString() {
-        const format = this.options.timepicker
-                ? 'YYYY/MM/DD HH:mm'
-                : 'YYYY/MM/DD';
-
-        return this.currentValue ? dateUtils.formatDate(this.currentValue, format) : '';
+        return this.currentValue ? dateUtils.formatDate(this.currentValue, this.valueFormat) : '';
     }
 
     open() {
@@ -776,6 +802,9 @@ export default class GDatetimepicker
     clear() {
         this.currentValue = null;
         this.$input.value = '';
+        if (this.options.altInput) {
+            this.$hiddenInput.value = '';
+        }
 
         dom.triggerEvent(this.$datetimePicker, 'dt.change');
         dom.triggerEvent(this.$datetimePicker, 'dt.changeView');

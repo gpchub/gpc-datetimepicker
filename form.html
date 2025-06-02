@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="vi">
+
+<head>
+	<meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>GPC Datepicker demo</title>
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
+	<link rel="stylesheet" type="text/css" href="./gpc-datetimepicker.css" />
+
+	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/9000.0.1/themes/prism.min.css" integrity="sha512-/mZ1FHPkg6EKcxo0fKXF51ak6Cr2ocgDi5ytaTBjsQZIH/RNs6GF6+oId/vPe3eJB836T36nXwVh/WBl/cWT4w==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+</head>
+
+<body>
+	<div class="container pt-4">
+		<div class="mb-3 d-flex gap-3">
+			<a href="index.html">Datepicker</a>
+			<a href="datetimepicker.html">Datetimepicker</a>
+			<a href="form.html">Form</a>
+		</div>
+
+		<h3>Datepicker</h3>
+        <form id="form1" class="form">
+		    <input type="text" id="dtp1" name="dtp1" />
+            <button type="submit">Submit</button>
+        </form>
+		<hr>
+
+        <h3>Datepicker có altInput</h3>
+        <form id="form2" class="form">
+		    <input type="text" id="dtp2" name="dtp2" />
+            <button type="submit">Submit</button>
+        </form>
+		<hr>
+
+        <h3>Date time picker</h3>
+        <form id="form3" class="form">
+		    <input type="text" id="dtp3" name="dtp3" />
+            <button type="submit">Submit</button>
+        </form>
+		<hr>
+
+        <h3>Date time picker có altInput</h3>
+        <form id="form4" class="form">
+		    <input type="text" id="dtp4" name="dtp4" />
+            <button type="submit">Submit</button>
+        </form>
+		<hr>
+
+
+	</div>
+
+	<script src="./dist/gpc-datetimepicker.umd.js"></script>
+	<script src="demo.js"></script>
+
+	<script src="https://unpkg.com/json5@2/dist/index.min.js"></script>
+
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/prism/9000.0.1/prism.min.js" integrity="sha512-UOoJElONeUNzQbbKQbjldDf9MwOHqxNz49NNJJ1d90yp+X9edsHyJoAs6O4K19CZGaIdjI5ohK+O2y5lBTW6uQ==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/prism/9000.0.1/components/prism-javascript.min.js" integrity="sha512-yvw5BDA/GQu8umskpIOBhX2pDLrdOiriaK4kVxtD28QEGLV5rscmCfDjkrx52tIgzLgwzs1FsALV6eYDpGnEkQ==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+
+	<script>
+
+		var today = new Date();
+		var year = today.getFullYear();
+		var month = padZero(today.getMonth() + 1);
+
+        createDTP('dtp1', {
+			timepicker: false,
+            altInput: false,
+		});
+
+        createDTP('dtp2', {
+			timepicker: false,
+            altInput: true,
+		});
+
+
+        createDTP('dtp3', {
+			timepicker: true,
+            altInput: false,
+		});
+
+        createDTP('dtp4', {
+			timepicker: true,
+            altInput: true,
+		});
+
+        document.querySelectorAll('.form').forEach(form => {
+            form.addEventListener('submit', (e) => {
+                e.preventDefault();
+                const formData = new FormData(form);
+                const formDataObject = Object.fromEntries(formData.entries());
+                console.log(formDataObject);
+
+                let result = form.querySelector('.result');
+                if (!result) {
+                    form.insertAdjacentHTML('beforeend', '<pre class="result"></pre>');
+                    result = form.querySelector('.result');
+                }
+                console.log(result);
+                result.innerHTML = JSON.stringify(formDataObject, null, 2);
+            });
+        });
+	</script>
+</body>
+
+</html>
